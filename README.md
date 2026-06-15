@@ -16,14 +16,46 @@ real business logic live as pure, unit-tested functions in `src/lib/logic`.
 
 ## Getting started
 
+Pick a database, then run the app. `npm test` runs the logic suite with no
+database at all.
+
+### Option A — zero setup (in-memory Mongo)
+
+Boots a throwaway MongoDB, creates indexes, seeds sample data, and starts the
+app in one command. Nothing to install, data is ephemeral. Requires outbound
+access to MongoDB's binary download host on first run.
+
 ```bash
 npm install
-cp .env.example .env            # set MONGODB_URI, MONGODB_DB, DEFAULT_USER_ID
+npm run dev:memory              # http://localhost:3000 (seeded)
+```
+
+### Option B — local Docker Mongo (persistent)
+
+```bash
+npm install
+docker compose up -d            # MongoDB on localhost:27017
+cp .env.example .env            # set MONGODB_URI="mongodb://localhost:27017"
 npm run setup:indexes           # create the §5 indexes (idempotent)
+npm run seed                    # optional: sample bank + history
 npm run dev                     # http://localhost:3000
 ```
 
-`npm test` runs the logic suite — no database required.
+### Option C — MongoDB Atlas
+
+Same as B, but set `MONGODB_URI` in `.env` to your Atlas connection string
+(free tier is plenty for one user), then `npm run setup:indexes` and `npm run dev`.
+
+### Sample data
+
+`npm run seed` (and `dev:memory`) loads five exercises plus ~10 days of history,
+arranged so the **overload nudge fires on Bulgarian Split Squat** (held at 30 lb
+across ready sessions) and the rolling 30-day count is non-zero.
+
+### Visual preview
+
+`docs/preview.html` is a static, self-contained mock of every screen — open it
+in a browser to review layout/styling without running anything.
 
 ## Build-order map (spec §8 → code)
 

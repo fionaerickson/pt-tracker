@@ -1,5 +1,7 @@
+import "./globals.css";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "PT & Gym Recovery Tracker",
@@ -9,15 +11,14 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body
-        style={{
-          fontFamily: "system-ui, -apple-system, sans-serif",
-          margin: 0,
-          background: "#0f1115",
-          color: "#e6e8eb",
-        }}
-      >
-        <main style={{ maxWidth: 720, margin: "0 auto", padding: "2rem 1rem" }}>{children}</main>
+      <body>
+        <main>
+          <nav className="tabs">
+            <Link href="/">Today</Link>
+            <Link href="/bank">Exercise bank</Link>
+          </nav>
+          {children}
+        </main>
       </body>
     </html>
   );

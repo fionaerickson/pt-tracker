@@ -1,64 +1,88 @@
-/**
- * Landing page — a scaffold home that documents the API surface mapped to the
- * spec's build order (§8). The screens (greeting, bank, logging, summary) layer
- * on top of these routes; this page is a placeholder index, not the final UI.
- */
-const buildOrder: { step: string; spec: string; routes: string[] }[] = [
-  { step: "1. Collections + indexes", spec: "§5", routes: ["npm run setup:indexes"] },
-  {
-    step: "2. Exercise bank: create/edit, search/filter",
-    spec: "§6.7",
-    routes: ["GET/POST /api/exercises", "GET/PATCH /api/exercises/:id"],
-  },
-  {
-    step: "3. Session lifecycle + greeting",
-    spec: "§6.1",
-    routes: ["GET /api/session", "POST /api/workouts", "GET /api/workouts/current"],
-  },
-  {
-    step: "4. Logging: adaptive prefill + cart ops",
-    spec: "§6.2 / §6.4",
-    routes: [
-      "GET /api/exercises/:id/prefill",
-      "GET/POST /api/workouts/:id/logs",
-      "PATCH/DELETE /api/logs/:id",
-    ],
-  },
-  { step: "5. Progressive overload check", spec: "§6.3", routes: ["(inside prefill)"] },
-  {
-    step: "6. Complete workout + PR cascade",
-    spec: "§6.5 / §6.6",
-    routes: ["POST /api/workouts/:id/complete"],
-  },
-  {
-    step: "7. Stats + retrospective PR lookups",
-    spec: "§6.8",
-    routes: ["GET /api/stats", "GET /api/exercises/:id/last-pr"],
-  },
-];
+"use client";
 
-export default function Home() {
+/**
+ * Today / session entry — spec §6.1.
+ * Resolves the open cart on load: resume (fresh), prompt (stale), or greet
+ * (none → collect readiness 1–5 and start a workout, which creates the cart).
+ */
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { api, type SessionDTO } from "@/lib/client";
+import { READINESS_MIN, READINESS_MAX, GREETING_THRESHOLD_HOURS } from "@/lib/constants";
+
+const READINESS_LABELS: Record<number, string> = {
+  1: "Flare-up",
+  2: "Rough",
+  3: "Okay",
+  4: "Good",
+  5: "Great",
+};
+
+export default function Today() {
+  const router = useRouter();
+  const [session, setSession] = useState<SessionDTO | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    api.session().then(setSession).catch((e) => setError(e.message));
+  }, []);
+
+  async function start(readiness: number) {
+    setBusy(true);
+    setError(null);
+    try {
+      await api.startWorkout(readiness);
+      router.push("/workout");
+    } catch (e) {
+      setError((e as Error).message);
+      setBusy(false);
+    }
+  }
+
+  if (error) return <p className="danger">{error}</p>;
+  if (!session) return <p className="muted">Loading…</p>;
+
+  if (session.action === "resume" || session.action === "stale") {
+    const started = new Date(session.workout.startedAt);
+    return (
+      <div>
+        <h1>Session in progress</h1>
+        <div className="card">
+          <p>
+            Started {started.toLocaleString()} · readiness{" "}
+            <span className="pill">{session.workout.readinessScore}/5</span>
+          </p>
+          {session.action === "stale" && (
+            <p className="muted">
+              This cart is more than {GREETING_THRESHOLD_HOURS}h old. You can pick up where you
+              left off (discarding it manually is a fast-follow).
+            </p>
+          )}
+          <button className="primary" onClick={() => router.push("/workout")}>
+            Continue session →
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Greeting — collect readiness.
   return (
     <div>
-      <h1>PT &amp; Gym Recovery Tracker</h1>
-      <p style={{ color: "#9aa3ad" }}>
-        Scaffold against spec §8. Business logic (§6.2/§6.3/§6.6) lives in{" "}
-        <code>src/lib/logic</code> as pure, unit-tested functions.
-      </p>
-      <ol>
-        {buildOrder.map((b) => (
-          <li key={b.step} style={{ marginBottom: "0.75rem" }}>
-            <strong>{b.step}</strong> <span style={{ color: "#6b7280" }}>({b.spec})</span>
-            <ul>
-              {b.routes.map((r) => (
-                <li key={r}>
-                  <code>{r}</code>
-                </li>
-              ))}
-            </ul>
-          </li>
-        ))}
-      </ol>
+      <h1>How are you feeling today?</h1>
+      <p className="muted">Your readiness gates overload nudges and shapes today&apos;s wins.</p>
+      <div className="card">
+        <div className="row">
+          {Array.from({ length: READINESS_MAX - READINESS_MIN + 1 }, (_, i) => READINESS_MIN + i).map(
+            (r) => (
+              <button key={r} className="primary" disabled={busy} onClick={() => start(r)}>
+                {r} · {READINESS_LABELS[r]}
+              </button>
+            ),
+          )}
+        </div>
+      </div>
     </div>
   );
 }

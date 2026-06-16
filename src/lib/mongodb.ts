@@ -2,9 +2,11 @@
  * MongoDB connection — spec §1 (official driver).
  *
  * The client is created lazily on first use (not at import time) so that
- * `next build` and unit tests don't require a live database or env vars. In
- * development we cache the connection promise on `globalThis` to reuse a single
- * pool across hot reloads.
+ * `next build` and unit tests don't require a live database or env vars. The
+ * connected client is cached on `globalThis` and reused across requests/hot
+ * reloads — critical on serverless (Vercel), where opening a fresh TLS
+ * connection per request causes connection churn and intermittent Atlas TLS
+ * errors.
  */
 
 import { MongoClient, type Db, type Collection } from "mongodb";
@@ -20,15 +22,14 @@ function connect(): Promise<MongoClient> {
   if (!uri) {
     throw new Error("Missing MONGODB_URI environment variable. See .env.example.");
   }
-  return new MongoClient(uri).connect();
+  // Pooled client; reused via the global cache below.
+  return new MongoClient(uri, { maxPoolSize: 10 }).connect();
 }
 
 function getClientPromise(): Promise<MongoClient> {
-  if (process.env.NODE_ENV === "development") {
-    if (!global._mongoClientPromise) global._mongoClientPromise = connect();
-    return global._mongoClientPromise;
-  }
-  return connect();
+  // Cache in all environments so warm serverless invocations reuse one client.
+  if (!global._mongoClientPromise) global._mongoClientPromise = connect();
+  return global._mongoClientPromise;
 }
 
 export async function getDb(): Promise<Db> {

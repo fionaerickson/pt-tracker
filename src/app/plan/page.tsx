@@ -1,17 +1,15 @@
 "use client";
 
 /**
- * Plan Workout (punch-list 3).
- * - Search bar; saved workouts show until the user starts searching.
- * - Searching lets you add individual exercises to a "Workout Menu".
- * - With a menu built: Save Workout (names + persists) or Launch Workout
- *   (readiness interstitial → Today's Workout). Selecting a saved workout
- *   launches it the same way.
+ * Plan Workout (design spec §7.2 / punch-list 3).
+ * Search → Workout Menu → Save Workout / Launch Workout (readiness sheet).
+ * Saved workouts launch in one tap (also via the readiness sheet).
  */
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api, type ExerciseDTO, type SavedWorkoutDTO } from "@/lib/client";
 import { ReadinessModal } from "@/components/ReadinessModal";
+import { Icon } from "@/components/icons";
 
 export default function PlanWorkout() {
   const router = useRouter();
@@ -61,7 +59,6 @@ export default function PlanWorkout() {
       router.push("/today");
     } catch (e) {
       const msg = (e as Error).message;
-      // Already in progress → just go to the session.
       if (msg.includes("already in progress")) router.push("/today");
       else {
         setError(msg);
@@ -73,17 +70,22 @@ export default function PlanWorkout() {
 
   return (
     <div>
-      <h1>Plan Workout</h1>
+      <h1>Plan workout</h1>
       {error && <p style={{ color: "var(--danger)" }}>{error}</p>}
 
-      <input
-        placeholder="🔍 Search exercises…"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        onFocus={() => setFocused(true)}
-      />
+      <div style={{ position: "relative" }}>
+        <span style={{ position: "absolute", left: 12, top: 13, color: "var(--muted)" }}>
+          <Icon name="search" />
+        </span>
+        <input
+          style={{ paddingLeft: 40 }}
+          placeholder="Search exercises…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onFocus={() => setFocused(true)}
+        />
+      </div>
 
-      {/* Default view: saved workouts (until the user searches) */}
       {!searching && menu.length === 0 && (
         <>
           <h2>Saved workouts</h2>
@@ -91,20 +93,20 @@ export default function PlanWorkout() {
           {saved.map((w) => (
             <button
               key={w._id}
-              className="card block"
-              style={{ textAlign: "left", height: "auto" }}
+              className="card block row spread"
+              style={{ height: "auto", textAlign: "left" }}
               onClick={() => setLaunchIds(w.exerciseIds)}
             >
-              <strong>{w.name}</strong>
-              <div className="muted" style={{ fontSize: "0.85rem" }}>
-                {w.exerciseIds.length} exercises · tap to launch
-              </div>
+              <span>
+                <strong>{w.name}</strong>
+                <div className="caption">{w.exerciseIds.length} exercises · tap to launch</div>
+              </span>
+              <Icon name="chevron" />
             </button>
           ))}
         </>
       )}
 
-      {/* Search results */}
       {searching && (
         <>
           <h2>Add exercises</h2>
@@ -113,36 +115,35 @@ export default function PlanWorkout() {
             <div key={ex._id} className="card row spread">
               <div>
                 <strong>{ex.name}</strong>
-                <div className="muted" style={{ fontSize: "0.8rem" }}>
+                <div className="caption">
                   {ex.muscleGroup ?? "—"} · {ex.purpose}
                 </div>
               </div>
               <button className="primary sm" onClick={() => add(ex)}>
-                + Add
+                <Icon name="plus" size={16} /> Add
               </button>
             </div>
           ))}
         </>
       )}
 
-      {/* Workout menu */}
       {menu.length > 0 && (
         <>
-          <h2>Workout Menu</h2>
+          <h2>Today&apos;s menu</h2>
           {menu.map((ex) => (
             <div key={ex._id} className="card row spread">
               <strong>{ex.name}</strong>
-              <button className="danger sm" onClick={() => remove(ex._id)}>
-                Remove
+              <button className="danger" onClick={() => remove(ex._id)}>
+                <Icon name="trash" size={16} /> Remove
               </button>
             </div>
           ))}
-          <div className="actionbar">
-            <button className="block" onClick={saveMenu}>
-              Save Workout
+          <div className="row sticky-cta" style={{ background: "var(--bg)" }}>
+            <button className="secondary" style={{ flex: 1 }} onClick={saveMenu}>
+              Save workout
             </button>
-            <button className="primary block" onClick={() => setLaunchIds(menu.map((e) => e._id))}>
-              Launch Workout
+            <button className="primary" style={{ flex: 1 }} onClick={() => setLaunchIds(menu.map((e) => e._id))}>
+              Launch workout
             </button>
           </div>
         </>

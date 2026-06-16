@@ -17,6 +17,7 @@ function makeExercise(overrides: Partial<Exercise> = {}): Exercise {
     defaultWeight: 25,
     defaultUnit: "lb",
     usualRepRange: { min: 8, max: 12 },
+    weightStep: 5,
     lastPerformedAt: null,
     createdAt: new Date(),
     updatedAt: new Date(),

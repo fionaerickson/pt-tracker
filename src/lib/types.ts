@@ -19,7 +19,7 @@ export type ProgressBy = "weight" | "reps" | "time" | "na";
 export type MuscleGroup = "arms" | "core" | "legs";
 
 /** Why the exercise is in the bank. PT exercises never receive overload nudges. */
-export type Purpose = "PT" | "Strength";
+export type Purpose = "PT" | "Strength" | "Mobility";
 
 /** Fixed equipment options (multiselect in the bank). */
 export type Equipment =
@@ -42,7 +42,7 @@ export const EQUIPMENT_OPTIONS: Equipment[] = [
 ];
 export const MUSCLE_GROUP_OPTIONS: MuscleGroup[] = ["arms", "core", "legs"];
 export const PROGRESS_GOAL_OPTIONS: ProgressBy[] = ["weight", "reps", "time", "na"];
-export const PURPOSE_OPTIONS: Purpose[] = ["PT", "Strength"];
+export const PURPOSE_OPTIONS: Purpose[] = ["PT", "Strength", "Mobility"];
 
 export type PrCategory =
   | "new_max_weight"
@@ -74,6 +74,8 @@ export interface Exercise {
   defaultUnit: string;
   /** Starting reps (min/max). */
   usualRepRange: RepRange;
+  /** Weight increment for the button-first logging suggestions (lbs). */
+  weightStep: number;
   /** Free-form tags (retained alongside the structured fields). */
   tags: string[];
   /** DENORMALIZED for the recency filter (spec §4). */
@@ -144,6 +146,8 @@ export interface Log {
   durationSeconds: number | null;
   /** The cart "quantity" — defaults to 1. */
   rounds: number;
+  /** Warm-up sets are excluded from the nudge-determination workflow (punch-list 1). */
+  isWarmup: boolean;
   /** 1–5, optional, log-level. */
   perceivedDifficulty: number | null;
   /** DENORMALIZED from the parent workout; never drifts (readiness fixed at session start). */

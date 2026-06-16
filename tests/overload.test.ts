@@ -64,6 +64,17 @@ describe("checkOverload — spec §6.3 + difficulty/PT rules", () => {
     expect(checkOverload({ ...base, purpose: "PT", windowedLogs })).toBeNull();
   });
 
+  it("ignores warm-up sets when determining nudges (punch-list 1)", () => {
+    // Three logs all at 30, but the two ready ones are warm-ups → not enough
+    // qualifying sets, so no stagnation nudge fires.
+    const windowedLogs = [
+      makeLog({ readinessScore: 4, weight: 30, isWarmup: true, performedAt: new Date("2026-06-12") }),
+      makeLog({ readinessScore: 4, weight: 30, isWarmup: true, performedAt: new Date("2026-06-10") }),
+      makeLog({ readinessScore: 4, weight: 30, performedAt: new Date("2026-06-08") }),
+    ];
+    expect(checkOverload({ ...base, windowedLogs })).toBeNull();
+  });
+
   it("never nudges when the progress goal is na", () => {
     const windowedLogs = [makeLog({ readinessScore: 4, weight: 30 }), makeLog({ readinessScore: 4, weight: 30 })];
     expect(checkOverload({ ...base, progressBy: "na", windowedLogs })).toBeNull();

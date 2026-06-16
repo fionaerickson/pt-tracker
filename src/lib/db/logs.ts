@@ -47,6 +47,7 @@ export interface AddLogInput {
   reps?: number | null;
   durationSeconds?: number | null;
   perceivedDifficulty?: number | null;
+  isWarmup?: boolean;
 }
 
 /** Add a cart row (§6.4): rounds default 1, readinessScore denormalized from the workout. */
@@ -68,6 +69,7 @@ export async function addLog(
     reps: input.reps ?? null,
     durationSeconds: input.durationSeconds ?? null,
     rounds: 1,
+    isWarmup: input.isWarmup ?? false,
     perceivedDifficulty: input.perceivedDifficulty ?? null,
     readinessScore,
     performedAt: now,

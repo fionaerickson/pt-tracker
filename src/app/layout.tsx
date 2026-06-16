@@ -2,6 +2,7 @@ import "./globals.css";
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { Icon } from "@/components/icons";
 
 export const metadata: Metadata = {
   title: "PT & Gym Recovery Tracker",
@@ -11,14 +12,14 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#2b2d77",
+  themeColor: "#E35336",
 };
 
 const TABS = [
-  { href: "/", ico: "🏠", label: "Today" },
-  { href: "/plan", ico: "📋", label: "Plan" },
-  { href: "/progress", ico: "📈", label: "Progress" },
-  { href: "/bank", ico: "🏋️", label: "Bank" },
+  { href: "/", icon: "home", label: "Today" },
+  { href: "/plan", icon: "clipboard", label: "Plan" },
+  { href: "/progress", icon: "trending", label: "Progress" },
+  { href: "/bank", icon: "dumbbell", label: "Bank" },
 ];
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -29,7 +30,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <nav className="tabbar">
           {TABS.map((t) => (
             <Link key={t.href} href={t.href}>
-              <span className="ico">{t.ico}</span>
+              <Icon name={t.icon} size={22} />
               {t.label}
             </Link>
           ))}

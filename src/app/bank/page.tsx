@@ -25,6 +25,7 @@ interface FormState {
   defaultWeight: string;
   repMin: string;
   repMax: string;
+  weightStep: string;
   purpose: Purpose;
   equipment: Equipment[];
 }
@@ -36,6 +37,7 @@ const EMPTY: FormState = {
   defaultWeight: "",
   repMin: "min",
   repMax: "max",
+  weightStep: "5",
   purpose: "Strength",
   equipment: [],
 };
@@ -88,6 +90,7 @@ export default function Bank() {
         min: Number.isFinite(repMin) ? repMin : 8,
         max: Number.isFinite(repMax) ? repMax : 12,
       },
+      weightStep: form.weightStep === "" ? 5 : Number(form.weightStep),
     };
     try {
       if (editingId) await api.updateExercise(editingId, payload);
@@ -109,6 +112,7 @@ export default function Bank() {
       defaultWeight: ex.defaultWeight?.toString() ?? "",
       repMin: ex.usualRepRange?.min?.toString() ?? "min",
       repMax: ex.usualRepRange?.max?.toString() ?? "max",
+      weightStep: ex.weightStep?.toString() ?? "5",
       purpose: ex.purpose,
       equipment: ex.equipment ?? [],
     });
@@ -175,6 +179,15 @@ export default function Bank() {
             <label>
               Starting reps (max)
               <input value={form.repMax} onChange={(e) => set({ repMax: e.target.value })} />
+            </label>
+            <label>
+              Weight step (lbs)
+              <input
+                type="number"
+                inputMode="decimal"
+                value={form.weightStep}
+                onChange={(e) => set({ weightStep: e.target.value })}
+              />
             </label>
           </div>
 

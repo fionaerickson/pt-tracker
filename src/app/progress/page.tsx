@@ -35,17 +35,19 @@ function Chart({ points }: { points: { x: number; y: number }[] }) {
     return { x, y, v: p.y };
   });
   const path = coords.map((c, i) => `${i === 0 ? "M" : "L"}${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(" ");
+  const area = `M${coords[0].x},${H - pad} ` + coords.map((c) => `L${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(" ") + ` L${coords[n - 1].x},${H - pad} Z`;
   return (
     <svg className="chart" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
-      <polyline points={`${pad},${H - pad} ${W - pad},${H - pad}`} stroke="#e3e6f0" strokeWidth="1" fill="none" />
-      {n > 1 && <path d={path} fill="none" stroke="#4a5cf2" strokeWidth="2.5" strokeLinejoin="round" />}
+      <polyline points={`${pad},${H - pad} ${W - pad},${H - pad}`} stroke="#E7DEC9" strokeWidth="1" fill="none" />
+      {n > 1 && <path d={area} fill="#E35336" fillOpacity="0.08" stroke="none" />}
+      {n > 1 && <path d={path} fill="none" stroke="#E35336" strokeWidth="2.5" strokeLinejoin="round" />}
       {coords.map((c, i) => (
-        <circle key={i} cx={c.x} cy={c.y} r="3.5" fill="#2b2d77" />
+        <circle key={i} cx={c.x} cy={c.y} r="3.5" fill="#A0522D" />
       ))}
-      <text x={pad} y="12" fontSize="10" fill="#6b7090">
+      <text x={pad} y="12" fontSize="10" fill="#8C7A66">
         max {max}
       </text>
-      <text x={pad} y={H - 2} fontSize="10" fill="#6b7090">
+      <text x={pad} y={H - 2} fontSize="10" fill="#8C7A66">
         min {min}
       </text>
     </svg>

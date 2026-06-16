@@ -16,6 +16,7 @@ export function makeLog(overrides: Partial<Log> = {}): Log {
     reps: null,
     durationSeconds: null,
     rounds: 1,
+    isWarmup: false,
     perceivedDifficulty: null,
     readinessScore: 4,
     performedAt: new Date("2026-06-01T00:00:00Z"),

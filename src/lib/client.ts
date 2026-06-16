@@ -21,6 +21,7 @@ export interface ExerciseDTO {
   defaultWeight: number | null;
   defaultUnit: string;
   usualRepRange: RepRange;
+  weightStep: number;
   tags: string[];
   lastPerformedAt: string | null;
   createdAt: string;
@@ -74,6 +75,7 @@ export interface LogDTO {
   reps: number | null;
   durationSeconds: number | null;
   rounds: number;
+  isWarmup: boolean;
   perceivedDifficulty: number | null;
   readinessScore: number;
   performedAt: string;

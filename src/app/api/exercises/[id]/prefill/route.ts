@@ -8,7 +8,7 @@ import { ok, fail, handle } from "@/lib/api";
 import { getUserId } from "@/lib/user";
 import { getExercise } from "@/lib/db/exercises";
 import { getWindowedLogs } from "@/lib/db/logs";
-import { getCurrentCart } from "@/lib/db/workouts";
+import { getActiveWorkout } from "@/lib/db/workouts";
 import { computePrefill } from "@/lib/logic/prefill";
 
 type Ctx = { params: { id: string } };
@@ -20,7 +20,7 @@ export const GET = handle(async (_req: NextRequest, { params }: Ctx) => {
 
   // Readiness comes from the active session; without one, fall back to a neutral
   // value so prefill still produces recent/cold-start branches.
-  const cart = await getCurrentCart(userId);
+  const cart = await getActiveWorkout(userId);
   const currentReadiness = cart?.readinessScore ?? 3;
 
   const windowedLogs = await getWindowedLogs(userId, params.id);

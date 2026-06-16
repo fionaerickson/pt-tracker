@@ -5,7 +5,12 @@
 
 import { ObjectId } from "mongodb";
 import { getCollections } from "@/lib/mongodb";
-import { GREETING_THRESHOLD_MS, ROLLING_STATS_MS, ADAPTIVE_WINDOW_MS } from "@/lib/constants";
+import {
+  GREETING_THRESHOLD_MS,
+  ROLLING_STATS_MS,
+  ADAPTIVE_WINDOW_MS,
+  SESSION_TTL_MS,
+} from "@/lib/constants";
 import type { Workout, Log, Pr } from "@/lib/types";
 import {
   computePrs,
@@ -18,6 +23,21 @@ import {
 export async function getCurrentCart(userId: string): Promise<Workout | null> {
   const { workouts } = await getCollections();
   return workouts.findOne({ userId, status: "in_progress" });
+}
+
+/**
+ * The active session — but auto-submits a stale one first (punch-list 3).
+ * An in-progress workout older than SESSION_TTL is completed automatically and
+ * treated as gone, so "Resume" only shows for genuinely fresh sessions.
+ */
+export async function getActiveWorkout(userId: string): Promise<Workout | null> {
+  const cart = await getCurrentCart(userId);
+  if (!cart) return null;
+  if (Date.now() - cart.startedAt.getTime() > SESSION_TTL_MS) {
+    await completeWorkout(userId, cart._id.toString());
+    return null;
+  }
+  return cart;
 }
 
 export type SessionResolution =

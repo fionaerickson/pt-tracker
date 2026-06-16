@@ -3,190 +3,187 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>PT Tracker — screen preview (v2)</title>
+    <title>PT Tracker — screen preview (v3, warm)</title>
     <style>
-      @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
+      @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap");
       :root {
-        --bg:#eef0f7; --surface:#fff; --ink:#1b1d39; --navy:#2b2d77; --blue:#4a5cf2;
-        --blue-soft:#e7eaff; --periwinkle:#9aa7ff; --muted:#6b7090; --line:#e3e6f0;
-        --good:#1fb486; --warn:#e8870b; --danger:#e0506b; --radius:16px;
+        --bg:#F5F5DC; --surface:#fff; --surface-2:#FBF7EC; --ink:#2B1A0E; --muted:#8C7A66;
+        --line:#E7DEC9; --primary:#E35336; --accent:#F4A460; --accent-tint:#FCEBD8;
+        --depth:#A0522D; --depth-strong:#6F371C; --success:#6E7B3F; --success-tint:#ECEFD9; --danger:#9E3321;
       }
       * { box-sizing:border-box; }
-      body { margin:0; background:#dfe3ef; font-family:"Roboto",system-ui,sans-serif; color:var(--ink); }
+      body { margin:0; background:#d8d3b8; font-family:"Inter",system-ui,sans-serif; color:var(--ink); }
+      .disp,h1,h2 { font-family:"Space Grotesk","Inter",sans-serif; }
       .wrap { display:flex; flex-wrap:wrap; gap:22px; padding:24px; justify-content:center; }
-      .phone { width:330px; background:var(--bg); border-radius:28px; border:10px solid #20223f; overflow:hidden; box-shadow:0 12px 30px rgba(20,22,50,.25); }
-      .scr { padding:16px 14px 18px; min-height:560px; position:relative; }
-      .label { text-align:center; font-size:12px; color:#3a3d6b; font-weight:700; letter-spacing:.05em; text-transform:uppercase; margin:4px 0 8px; }
-      h1 { font-size:22px; font-weight:700; margin:4px 0 14px; }
-      h2 { font-size:16px; font-weight:700; margin:16px 0 8px; }
-      .muted { color:var(--muted); }
-      .card { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:14px; margin-bottom:10px; }
-      .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+      .phone { width:332px; background:var(--bg); border:9px solid #2B1A0E; border-radius:34px; overflow:hidden; box-shadow:0 14px 34px rgba(43,26,14,.3); }
+      .scr { padding:18px 16px 18px; min-height:600px; }
+      .label { text-align:center; font:600 11px "Inter"; letter-spacing:.06em; text-transform:uppercase; color:var(--depth-strong); margin-bottom:10px; }
+      h1 { font-size:25px; font-weight:700; margin:2px 0 4px; letter-spacing:-.01em; }
+      h2 { font-size:16px; font-weight:600; margin:16px 0 8px; }
+      .cap { font-size:12.5px; color:var(--muted); }
+      .stat { font:700 40px "Space Grotesk"; letter-spacing:-.02em; line-height:1; }
+      .eyebrow { font:600 11px "Inter"; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
+      .card { background:var(--surface); border:1px solid var(--line); border-radius:18px; padding:14px; margin-bottom:10px; }
+      .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
       .spread { justify-content:space-between; }
-      .col { display:flex; flex-direction:column; gap:8px; }
-      .btn { min-height:50px; border:1px solid var(--line); background:var(--surface); color:var(--ink); border-radius:14px; padding:0 16px; font-weight:500; display:flex; align-items:center; justify-content:center; font-size:15px; }
+      .col { display:flex; flex-direction:column; gap:10px; }
+      .btn { min-height:52px; border:1.5px solid var(--line); background:#fff; color:var(--ink); border-radius:14px; display:flex; align-items:center; justify-content:center; font:600 16px "Inter"; padding:0 14px; }
       .btn.block { width:100%; }
-      .btn.primary { background:var(--blue); border-color:var(--blue); color:#fff; }
-      .btn.navy { background:var(--navy); border-color:var(--navy); color:#fff; }
-      .btn.sm { min-height:38px; border-radius:10px; font-size:13px; padding:0 12px; }
-      .btn.danger { border-color:var(--danger); color:var(--danger); }
-      .hero { flex-direction:column; align-items:flex-start; min-height:84px; text-align:left; gap:3px; padding:14px; }
-      .hero .big { font-size:18px; font-weight:700; }
-      .hero .sub { font-size:13px; opacity:.85; font-weight:400; }
-      input,select { width:100%; border:1px solid var(--line); border-radius:12px; padding:11px 12px; font-family:inherit; font-size:14px; background:#fff; color:var(--ink); }
-      label { display:flex; flex-direction:column; gap:4px; font-size:12px; font-weight:500; color:var(--muted); }
-      .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-      .pill { display:inline-block; font-size:11px; padding:2px 9px; border-radius:999px; background:var(--blue-soft); color:var(--navy); margin:0 4px 3px 0; }
-      .pill.pt { background:#eafaf3; color:var(--good); }
-      .chip { border:1px solid var(--line); border-radius:999px; padding:7px 12px; font-size:13px; color:var(--muted); background:#fff; }
-      .chip.on { background:var(--blue); border-color:var(--blue); color:#fff; }
-      .nudge { border-left:4px solid var(--warn); background:#fff7ec; padding:10px 12px; border-radius:12px; color:#92560a; font-size:13px; margin:10px 0; }
-      .pr { border-left:4px solid var(--good); background:#eafaf3; padding:10px 12px; border-radius:12px; margin-bottom:8px; font-size:14px; }
-      .tabbar { display:flex; justify-content:space-around; border-top:1px solid var(--line); background:#fff; padding:6px 0; margin:14px -14px -18px; }
-      .tabbar a { flex:1; text-align:center; font-size:11px; color:var(--muted); font-weight:500; }
-      .tabbar a .ico { display:block; font-size:19px; }
-      .tabbar a.active { color:var(--blue); }
-      .chart { width:100%; height:150px; background:#fff; border:1px solid var(--line); border-radius:var(--radius); }
-      .celebrate { text-align:center; font-size:46px; }
-      .overlay { background:rgba(20,22,50,.55); border-radius:18px; padding:14px; }
-      .sheet { background:#fff; border-radius:16px; padding:14px; }
+      .btn.primary { background:var(--primary); border-color:var(--primary); color:#fff; }
+      .btn.secondary { border:1.5px solid var(--depth); color:var(--depth); background:#fff; min-height:50px; }
+      .btn.danger { border:none; color:var(--danger); background:none; min-height:40px; }
+      .hero { flex-direction:column; align-items:flex-start; gap:4px; min-height:86px; padding:16px; border-radius:20px; }
+      .hero .big { font:700 19px "Space Grotesk"; } .hero .sub { font:400 13px "Inter"; opacity:.9; }
+      .statblock { background:var(--depth); color:#fff; border-radius:20px; padding:18px; text-align:center; }
+      .statblock .stat { color:#fff; } .statblock .l { font-size:13px; opacity:.9; margin-top:4px; }
+      input,select { width:100%; border:1.5px solid var(--line); border-radius:12px; padding:11px 12px; font:400 15px "Inter"; background:#fff; color:var(--ink); }
+      .pill { display:inline-block; font:600 13px "Inter"; padding:2px 9px; border-radius:999px; background:#FBE3DC; color:var(--depth-strong); margin:0 4px 3px 0; }
+      .pill.pt { background:var(--success-tint); color:var(--success); }
+      .chip { border:1.5px solid var(--line); background:var(--surface-2); color:var(--muted); border-radius:999px; padding:7px 12px; font:600 13px "Inter"; }
+      .chip.on { background:var(--primary); border-color:var(--primary); color:#fff; }
+      .seg { min-height:48px; border:1.5px solid var(--line); background:var(--surface-2); border-radius:12px; display:flex; align-items:center; justify-content:center; font:600 16px "Inter"; }
+      .seg.sel { background:var(--primary); border-color:var(--primary); color:#fff; }
+      .seg.m { color:var(--muted); font-size:14px; }
+      .nudge { display:flex; gap:10px; border-left:4px solid var(--accent); background:var(--accent-tint); padding:11px 12px; border-radius:12px; color:var(--depth-strong); font-size:13.5px; line-height:1.45; margin:12px 0; }
+      .pr { border-left:4px solid var(--success); background:var(--success-tint); padding:11px 12px; border-radius:12px; margin-bottom:8px; }
+      .pr .eyebrow { color:var(--success); }
+      .unit { display:inline-flex; border:1.5px solid var(--line); border-radius:10px; overflow:hidden; }
+      .unit span { padding:6px 14px; font:600 13px "Inter"; background:#fff; color:var(--muted); }
+      .unit span.on { background:var(--primary); color:#fff; }
+      .check { display:flex; align-items:center; gap:10px; font:500 15px "Inter"; min-height:44px; }
+      .check input { width:22px; height:22px; accent-color:var(--primary); }
+      .tabbar { display:flex; justify-content:space-around; border-top:1px solid var(--line); background:#fff; padding:8px 0 6px; margin:14px -16px -18px; }
+      .tabbar a { flex:1; text-align:center; font:500 11px "Inter"; color:var(--muted); display:flex; flex-direction:column; align-items:center; gap:3px; }
+      .tabbar a.active { color:var(--primary); }
+      .tabbar svg { width:22px; height:22px; }
+      .slider { position:relative; height:24px; margin:6px 0; }
+      .slider .track { position:absolute; top:9px; left:0; right:0; height:6px; border-radius:999px; background:var(--line); }
+      .slider .fill { position:absolute; top:9px; left:0; width:66%; height:6px; border-radius:999px; background:var(--accent); }
+      .slider .thumb { position:absolute; top:0; left:66%; transform:translateX(-50%); width:24px; height:24px; border-radius:50%; background:#fff; border:3px solid var(--primary); }
+      .ico { width:18px; height:18px; vertical-align:middle; }
     </style>
   </head>
   <body>
     <div class="wrap">
-      <!-- TODAY HUB -->
+      <!-- TODAY -->
       <div class="phone"><div class="scr">
-        <div class="label">Today — hub</div>
-        <h1>Today</h1>
-        <div class="btn primary hero block"><span><span class="big">Resume today's workout →</span><br /><span class="sub">Readiness 4/5 · in progress</span></span></div>
+        <div class="label">Today — hub (Launch)</div>
+        <h1>Today</h1><p class="cap">Tuesday, June 16</p>
+        <div class="btn primary hero block"><span class="big">Launch workout</span><span class="sub">Start logging right away</span></div>
         <div class="col" style="margin-top:10px">
-          <div class="btn navy hero block"><span><span class="big">📋 Plan Workout</span><br /><span class="sub">Build a session or launch a saved one</span></span></div>
-          <div class="btn hero block"><span><span class="big">📈 Progress Tracking</span><br /><span class="sub">Charts & personal bests by exercise</span></span></div>
+          <div class="btn secondary block" style="justify-content:flex-start;gap:10px">Plan a workout</div>
+          <div class="btn secondary block" style="justify-content:flex-start;gap:10px">Progress</div>
         </div>
-        <div class="card" style="text-align:center;margin-top:14px"><div style="font-size:26px;font-weight:700">7</div><div class="muted">workouts in the last 30 days</div></div>
-        <div class="tabbar"><a class="active"><span class="ico">🏠</span>Today</a><a><span class="ico">📋</span>Plan</a><a><span class="ico">📈</span>Progress</a><a><span class="ico">🏋️</span>Bank</a></div>
+        <div class="statblock" style="margin-top:16px"><div class="stat">7</div><div class="l">workouts · last 30 days</div></div>
+        <div class="tabbar"><a class="active">Today</a><a>Plan</a><a>Progress</a><a>Bank</a></div>
       </div></div>
 
-      <!-- PLAN WORKOUT -->
+      <!-- LOG (signature) -->
       <div class="phone"><div class="scr">
-        <div class="label">Plan Workout</div>
-        <h1>Plan Workout</h1>
-        <input placeholder="🔍 Search exercises…" />
-        <h2>Saved workouts</h2>
-        <div class="card"><strong>Leg Day</strong><div class="muted" style="font-size:13px">3 exercises · tap to launch</div></div>
-        <h2>Workout Menu</h2>
-        <div class="card row spread"><strong>Bulgarian Split Squat</strong><div class="btn danger sm">Remove</div></div>
-        <div class="card row spread"><strong>Plank</strong><div class="btn danger sm">Remove</div></div>
-        <div class="row" style="margin-top:10px"><div class="btn block" style="flex:1">Save Workout</div><div class="btn primary block" style="flex:1">Launch Workout</div></div>
-        <div class="tabbar"><a><span class="ico">🏠</span>Today</a><a class="active"><span class="ico">📋</span>Plan</a><a><span class="ico">📈</span>Progress</a><a><span class="ico">🏋️</span>Bank</a></div>
+        <div class="label">Log a set — button-first</div>
+        <div class="cap" style="margin-bottom:6px">‹ Today's workout</div>
+        <h1>Bulgarian split squat</h1>
+        <div class="nudge"><span>🏋</span><div>Your weight has held at 30 for a few sessions. Ready to try 35?</div></div>
+        <label class="check"><input type="checkbox" /> Warm-up set <span class="cap">(ignored for nudges)</span></label>
+        <div class="row spread" style="margin:14px 0 8px"><span class="eyebrow">Weight</span>
+          <span class="unit"><span class="on">lbs</span><span>kg</span></span></div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+          <div class="seg">25</div><div class="seg">30</div><div class="seg sel">35</div><div class="seg m">Other</div>
+        </div>
+        <div class="row spread" style="margin:18px 0 4px;align-items:baseline"><span class="eyebrow">Reps</span><span class="stat" style="font-size:28px">10</span></div>
+        <div class="slider"><div class="track"></div><div class="fill"></div><div class="thumb"></div></div>
+        <div class="row spread"><span class="cap">6</span><span class="cap">12</span></div>
+        <div class="eyebrow" style="margin:18px 0 8px">How hard did that feel?</div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">
+          <div class="seg">1</div><div class="seg">2</div><div class="seg sel">3</div><div class="seg">4</div><div class="seg">5</div>
+        </div>
+        <div class="col" style="margin-top:18px">
+          <div class="btn secondary block">Save and add another</div>
+          <div class="btn primary block">Add to workout</div>
+        </div>
       </div></div>
 
-      <!-- READINESS INTERSTITIAL -->
-      <div class="phone"><div class="scr" style="background:#c9cee2">
-        <div class="label">Readiness interstitial</div>
+      <!-- READINESS -->
+      <div class="phone"><div class="scr" style="background:#ccc6a6">
+        <div class="label">Readiness sheet</div>
         <div style="height:120px"></div>
-        <div class="sheet">
-          <h1 style="margin-bottom:2px">How are you feeling?</h1>
-          <p class="muted" style="margin-top:0">Sets the readiness for today's session.</p>
+        <div style="background:#fff;border-radius:22px;padding:16px">
+          <h1 style="margin-bottom:2px">How are you feeling?</h1><p class="cap" style="margin-top:0">Sets today's readiness.</p>
           <div class="col">
-            <div class="btn navy block">1 · Flare-up</div>
-            <div class="btn navy block">2 · Rough</div>
-            <div class="btn navy block">3 · Okay</div>
-            <div class="btn navy block">4 · Good</div>
-            <div class="btn navy block">5 · Great</div>
-            <div class="btn block">Cancel</div>
+            <div class="seg" style="justify-content:flex-start;padding-left:16px"><b style="margin-right:10px">1</b> Flare-up</div>
+            <div class="seg" style="justify-content:flex-start;padding-left:16px"><b style="margin-right:10px">2</b> Rough</div>
+            <div class="seg sel" style="justify-content:flex-start;padding-left:16px"><b style="margin-right:10px">3</b> Okay</div>
+            <div class="seg" style="justify-content:flex-start;padding-left:16px"><b style="margin-right:10px">4</b> Good</div>
+            <div class="seg" style="justify-content:flex-start;padding-left:16px"><b style="margin-right:10px">5</b> Great</div>
           </div>
         </div>
       </div></div>
 
       <!-- TODAY'S WORKOUT -->
       <div class="phone"><div class="scr">
-        <div class="label">Today's Workout</div>
-        <div class="row spread"><h1>Today's Workout</h1><span class="pill">readiness 4/5</span></div>
-        <div class="card row spread"><span><strong>Bulgarian Split Squat</strong><div class="muted" style="font-size:13px">3 sets logged</div></span><span>→</span></div>
-        <div class="card row spread"><span><strong>Plank</strong> <span class="pill pt">PT</span><div class="muted" style="font-size:13px">Tap to log</div></span><span>→</span></div>
-        <h2>Exercise Log <span class="muted">(3 sets)</span></h2>
-        <div class="card"><strong>Bulgarian Split Squat</strong><div class="muted" style="font-size:13px">30lbs · 10 reps · 3 rounds</div></div>
-        <div class="btn primary block" style="margin-top:10px">Finish workout 🎉</div>
-        <div class="tabbar"><a class="active"><span class="ico">🏠</span>Today</a><a><span class="ico">📋</span>Plan</a><a><span class="ico">📈</span>Progress</a><a><span class="ico">🏋️</span>Bank</a></div>
-      </div></div>
-
-      <!-- LOG SCREEN + NUDGE -->
-      <div class="phone"><div class="scr">
-        <div class="label">Log a set — overload nudge</div>
-        <div class="btn ghost sm" style="display:inline-flex;border:none;color:var(--muted);padding:0">← Today's Workout</div>
-        <h1 style="margin-top:8px">Bulgarian Split Squat</h1>
-        <div class="nudge">Time for progressive overload — your weight has held at 30. Try a bump?</div>
-        <div class="grid2">
-          <label>Weight<input value="30" /></label>
-          <label>Unit<input value="lbs" /></label>
-          <label>Reps<input value="10" /></label>
-          <label>Duration (s)<input /></label>
-          <label>Difficulty (1–5)<input /></label>
-        </div>
-        <div class="col" style="margin-top:14px">
-          <div class="btn block">Save and Add Another Set</div>
-          <div class="btn primary block">Submit</div>
-        </div>
+        <div class="label">Today's workout (Exercise Log)</div>
+        <div class="row spread"><h1>Today's workout</h1><span class="pill">readiness 4/5</span></div>
+        <div class="card row spread"><span><b>Bulgarian split squat</b><div class="cap">3 sets logged</div></span><span>›</span></div>
+        <div class="card row spread"><span><b>Plank</b> <span class="pill pt">PT</span><div class="cap">Tap to log</div></span><span>›</span></div>
+        <h2>Add an exercise</h2>
+        <input placeholder="🔍 Search to log…" />
+        <h2>Exercise Log <span class="cap">(3 sets)</span></h2>
+        <div class="card"><b>Bulgarian split squat</b><div class="cap">35lbs · 10 reps · 3 rounds</div></div>
+        <div class="btn primary block" style="margin-top:10px">Finish workout</div>
+        <div class="tabbar"><a class="active">Today</a><a>Plan</a><a>Progress</a><a>Bank</a></div>
       </div></div>
 
       <!-- PROGRESS -->
       <div class="phone"><div class="scr">
-        <div class="label">Progress Tracking</div>
-        <div class="btn ghost sm" style="display:inline-flex;border:none;color:var(--muted);padding:0">← All exercises</div>
-        <h1 style="margin-top:8px">Bulgarian Split Squat</h1>
-        <p class="muted" style="margin-top:-8px">Progress in weight over time</p>
-        <svg class="chart" viewBox="0 0 300 150" preserveAspectRatio="none">
-          <polyline points="16,134 284,134" stroke="#e3e6f0" stroke-width="1" fill="none" />
-          <path d="M16,110 L100,96 L184,70 L268,40" fill="none" stroke="#4a5cf2" stroke-width="2.5" />
-          <circle cx="16" cy="110" r="4" fill="#2b2d77" /><circle cx="100" cy="96" r="4" fill="#2b2d77" />
-          <circle cx="184" cy="70" r="4" fill="#2b2d77" /><circle cx="268" cy="40" r="4" fill="#2b2d77" />
-          <text x="16" y="12" font-size="10" fill="#6b7090">max 40</text>
-          <text x="16" y="148" font-size="10" fill="#6b7090">min 25</text>
+        <div class="label">Progress</div>
+        <div class="cap" style="margin-bottom:6px">‹ All exercises</div>
+        <h1>Bulgarian split squat</h1><p class="cap">Weight over time</p>
+        <svg width="100%" height="180" viewBox="0 0 300 170" style="background:#fff;border:1px solid var(--line);border-radius:18px">
+          <path d="M16,140 L100,120 L184,84 L268,40 L268,154 L16,154 Z" fill="#E35336" fill-opacity="0.08"/>
+          <polyline points="16,154 284,154" stroke="#E7DEC9" stroke-width="1" fill="none"/>
+          <path d="M16,140 L100,120 L184,84 L268,40" fill="none" stroke="#E35336" stroke-width="2.5"/>
+          <circle cx="16" cy="140" r="4" fill="#A0522D"/><circle cx="100" cy="120" r="4" fill="#A0522D"/>
+          <circle cx="184" cy="84" r="4" fill="#A0522D"/><circle cx="268" cy="40" r="4" fill="#A0522D"/>
+          <text x="16" y="14" font-size="10" fill="#8C7A66">max 40</text>
         </svg>
         <h2>Last personal best</h2>
-        <p class="muted" style="font-size:13px">6/14/2026</p>
-        <div class="pr"><strong>new max weight</strong><div>New all-time max weight on Bulgarian Split Squat: 40 lbs!</div></div>
-        <div class="tabbar"><a><span class="ico">🏠</span>Today</a><a><span class="ico">📋</span>Plan</a><a class="active"><span class="ico">📈</span>Progress</a><a><span class="ico">🏋️</span>Bank</a></div>
+        <div class="pr"><div class="eyebrow">new max weight</div><div class="row" style="gap:8px"><span>🏆</span> New all-time max weight: 40 lbs!</div></div>
+        <div class="tabbar"><a>Today</a><a>Plan</a><a class="active">Progress</a><a>Bank</a></div>
       </div></div>
 
       <!-- BANK -->
       <div class="phone"><div class="scr">
-        <div class="label">Exercise Bank — new fields</div>
-        <h1>Exercise Bank</h1>
-        <div class="card">
-          <strong>New exercise</strong>
+        <div class="label">Exercise bank</div>
+        <h1>Exercise bank</h1>
+        <div class="card"><b>New exercise</b>
           <div class="col" style="margin-top:8px">
-            <label>Name<input value="Bulgarian Split Squat" /></label>
-            <div class="grid2">
-              <label>Progress goal<select><option>weight</option></select></label>
-              <label>Muscle group<select><option>legs</option></select></label>
-              <label>Starting weight (lbs)<input value="25" /></label>
-              <label>Purpose<select><option>Strength</option></select></label>
-              <label>Starting reps (min)<input value="8" /></label>
-              <label>Starting reps (max)<input value="12" /></label>
+            <input value="Bulgarian split squat" />
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <select><option>weight</option></select>
+              <select><option>legs</option></select>
+              <input value="25" placeholder="Starting weight" />
+              <select><option>Strength</option><option>Mobility</option><option>PT</option></select>
+              <input value="8" /><input value="12" />
+              <input value="5" placeholder="Weight step" />
             </div>
-            <div class="muted" style="font-size:12px;font-weight:500">Equipment</div>
-            <div class="row">
-              <span class="chip on">free weights</span><span class="chip">machine</span>
-              <span class="chip">band</span><span class="chip">none</span>
-            </div>
+            <div class="eyebrow">Equipment</div>
+            <div class="row"><span class="chip on">free weights</span><span class="chip">machine</span><span class="chip">band</span><span class="chip">none</span></div>
             <div class="btn primary block">Add to bank</div>
           </div>
         </div>
-        <div class="tabbar"><a><span class="ico">🏠</span>Today</a><a><span class="ico">📋</span>Plan</a><a><span class="ico">📈</span>Progress</a><a class="active"><span class="ico">🏋️</span>Bank</a></div>
+        <div class="tabbar"><a>Today</a><a>Plan</a><a>Progress</a><a class="active">Bank</a></div>
       </div></div>
 
       <!-- SUMMARY -->
       <div class="phone"><div class="scr">
         <div class="label">Celebration + summary</div>
-        <div class="celebrate">🎉</div>
+        <div style="text-align:center;font-size:54px;color:var(--primary)">🎉</div>
         <h1 style="text-align:center">Nice work!</h1>
-        <div class="card" style="text-align:center"><strong>9</strong> sets logged<br /><strong>7</strong> workouts in the last 30 days</div>
+        <div class="card row spread" style="text-align:center"><div style="flex:1"><div class="stat">9</div><div class="cap">sets</div></div><div style="flex:1"><div class="stat">7</div><div class="cap">workouts · 30 days</div></div></div>
         <h2>Personal bests</h2>
-        <div class="pr"><strong>new max weight</strong><div>New all-time max weight on Romanian Deadlift: 135 lbs!</div></div>
-        <div class="pr"><strong>variation win</strong><div>Back on Goblet Squat — first time in 14 days!</div></div>
-        <div class="btn primary block" style="margin-top:12px">Back to Today</div>
+        <div class="pr"><div class="eyebrow">new max weight</div><div class="row" style="gap:8px"><span>🏆</span> New all-time max weight on Romanian Deadlift: 135 lbs!</div></div>
+        <div class="pr"><div class="eyebrow">variation win</div><div class="row" style="gap:8px"><span>🏆</span> Back on Goblet Squat — first time in 14 days!</div></div>
+        <div class="btn primary block" style="margin-top:14px">Back to Today</div>
       </div></div>
     </div>
   </body>

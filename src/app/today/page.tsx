@@ -1,29 +1,29 @@
 "use client";
 
 /**
- * Today's Workout (punch-list 3/7).
- * Lists the planned exercises for easy logging, shows the Exercise Log
- * (formerly "Cart"), and finishes the session into a celebration + summary.
+ * Today's Workout — the cart (design spec §7.4 / punch-list 3,7).
+ * Lists planned exercises for quick logging, lets you add any exercise ad-hoc
+ * (the "Launch workout" path), shows the Exercise Log, and finishes into the
+ * celebration + summary.
  */
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { api, type ExerciseDTO, type LogDTO, type WorkoutDTO } from "@/lib/client";
 import { Summary } from "@/components/Summary";
+import { Icon } from "@/components/icons";
 
 export default function TodaysWorkout() {
-  const router = useRouter();
   const [workout, setWorkout] = useState<WorkoutDTO | null>(null);
-  const [planned, setPlanned] = useState<ExerciseDTO[]>([]);
+  const [allExercises, setAllExercises] = useState<ExerciseDTO[]>([]);
   const [logs, setLogs] = useState<LogDTO[]>([]);
   const [summary, setSummary] = useState<WorkoutDTO | null>(null);
+  const [query, setQuery] = useState("");
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async (w: WorkoutDTO) => {
     const [all, cart] = await Promise.all([api.listExercises(), api.cartLogs(w._id)]);
-    const ids = new Set([...(w.plannedExerciseIds ?? []), ...cart.map((l) => l.exerciseId)]);
-    setPlanned(all.filter((e) => ids.has(e._id)));
+    setAllExercises(all);
     setLogs(cart);
   }, []);
 
@@ -40,6 +40,18 @@ export default function TodaysWorkout() {
       }
     })();
   }, [refresh]);
+
+  const plannedIds = useMemo(() => {
+    if (!workout) return new Set<string>();
+    return new Set([...(workout.plannedExerciseIds ?? []), ...logs.map((l) => l.exerciseId)]);
+  }, [workout, logs]);
+
+  const planned = allExercises.filter((e) => plannedIds.has(e._id));
+  const searchResults = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    return allExercises.filter((e) => !plannedIds.has(e._id) && e.name.toLowerCase().includes(q));
+  }, [allExercises, plannedIds, query]);
 
   async function finish() {
     if (!workout) return;
@@ -58,7 +70,7 @@ export default function TodaysWorkout() {
       <div>
         <h1>No active session</h1>
         <p className="muted">
-          Start one from <Link href="/plan">Plan Workout</Link>.
+          Start one from <Link href="/">Today</Link> or <Link href="/plan">Plan workout</Link>.
         </p>
       </div>
     );
@@ -70,15 +82,9 @@ export default function TodaysWorkout() {
   return (
     <div>
       <div className="row spread">
-        <h1>Today&apos;s Workout</h1>
+        <h1>Today&apos;s workout</h1>
         <span className="pill">readiness {workout.readinessScore}/5</span>
       </div>
-
-      {planned.length === 0 && (
-        <p className="muted">
-          No exercises yet — add some from <Link href="/plan">Plan Workout</Link>.
-        </p>
-      )}
 
       {planned.map((ex) => {
         const sets = setsByExercise(ex._id);
@@ -88,17 +94,38 @@ export default function TodaysWorkout() {
               <span>
                 <strong>{ex.name}</strong>
                 {ex.purpose === "PT" && <span className="pill pt" style={{ marginLeft: 6 }}>PT</span>}
-                <div className="muted" style={{ fontSize: "0.8rem" }}>
+                <div className="caption">
                   {sets > 0 ? `${sets} set${sets === 1 ? "" : "s"} logged` : "Tap to log"}
                 </div>
               </span>
-              <span aria-hidden>→</span>
+              <Icon name="chevron" />
             </button>
           </Link>
         );
       })}
 
-      {/* Exercise Log (formerly Cart) */}
+      {/* Ad-hoc add — the Launch-workout path logs exercises individually */}
+      <h2>Add an exercise</h2>
+      <div style={{ position: "relative" }}>
+        <span style={{ position: "absolute", left: 12, top: 13, color: "var(--muted)" }}>
+          <Icon name="search" />
+        </span>
+        <input
+          style={{ paddingLeft: 40 }}
+          placeholder="Search to log…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+      </div>
+      {searchResults.slice(0, 12).map((ex) => (
+        <Link key={ex._id} href={`/today/log/${ex._id}`}>
+          <button className="card block row spread" style={{ height: "auto", textAlign: "left" }}>
+            <span>{ex.name}</span>
+            <Icon name="plus" />
+          </button>
+        </Link>
+      ))}
+
       <h2>
         Exercise Log <span className="muted">({totalSets} sets)</span>
       </h2>
@@ -106,7 +133,8 @@ export default function TodaysWorkout() {
       {logs.map((log) => (
         <div key={log._id} className="card">
           <strong>{log.exerciseName}</strong>
-          <div className="muted" style={{ fontSize: "0.85rem" }}>
+          {log.isWarmup && <span className="pill" style={{ marginLeft: 6 }}>warm-up</span>}
+          <div className="caption">
             {log.weight != null ? `${log.weight}${log.unit ?? ""} · ` : ""}
             {log.reps != null ? `${log.reps} reps · ` : ""}
             {log.durationSeconds != null ? `${log.durationSeconds}s · ` : ""}
@@ -116,18 +144,10 @@ export default function TodaysWorkout() {
       ))}
 
       {logs.length > 0 && (
-        <div className="actionbar">
-          <button className="primary block" onClick={finish}>
-            Finish workout 🎉
-          </button>
-        </div>
-      )}
-
-      <div style={{ marginTop: "0.5rem" }}>
-        <button className="ghost block" onClick={() => router.push("/plan")}>
-          + Add more exercises
+        <button className="primary block sticky-cta" onClick={finish}>
+          Finish workout
         </button>
-      </div>
+      )}
     </div>
   );
 }

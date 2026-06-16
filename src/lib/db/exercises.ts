@@ -5,7 +5,7 @@
 
 import { ObjectId, type Filter } from "mongodb";
 import { getCollections } from "@/lib/mongodb";
-import { ADAPTIVE_WINDOW_MS } from "@/lib/constants";
+import { ADAPTIVE_WINDOW_MS, DEFAULT_WEIGHT_STEP } from "@/lib/constants";
 import type {
   Exercise,
   ProgressBy,
@@ -27,6 +27,8 @@ export interface ExerciseInput {
   defaultUnit?: string;
   /** Starting reps. */
   usualRepRange?: RepRange;
+  /** Weight increment for logging suggestions (lbs). */
+  weightStep?: number;
   tags?: string[];
   hasWeight?: boolean;
 }
@@ -90,6 +92,7 @@ export async function createExercise(userId: string, input: ExerciseInput): Prom
     defaultWeight: input.defaultWeight ?? null,
     defaultUnit: input.defaultUnit ?? "lbs",
     usualRepRange: input.usualRepRange ?? { min: 8, max: 12 },
+    weightStep: input.weightStep ?? DEFAULT_WEIGHT_STEP,
     tags: input.tags ?? [],
     lastPerformedAt: null,
     createdAt: now,

@@ -70,9 +70,10 @@ export function checkOverload({
   // Gate 1 — no nudge ever shows on a flare-up day.
   if (currentReadiness <= 2) return null;
 
-  // Gate 2 — exclude low-readiness sessions; keep most-recent-first ordering.
+  // Gate 2 — exclude low-readiness sessions and warm-up sets; keep
+  // most-recent-first ordering. Warm-up sets never influence nudges (punch-list 1).
   const qualifying = windowedLogs
-    .filter((log) => log.readinessScore >= OVERLOAD_READINESS_FLOOR)
+    .filter((log) => !log.isWarmup && log.readinessScore >= OVERLOAD_READINESS_FLOOR)
     .sort((a, b) => b.performedAt.getTime() - a.performedAt.getTime());
 
   if (qualifying.length === 0) return null;

@@ -14,7 +14,13 @@ real business logic live as pure, unit-tested functions in `src/lib/logic`.
 - **MongoDB** via the official driver (spec §1).
 - **TypeScript** throughout; **Vitest** for the logic unit tests.
 
-## Getting started
+## Deploying for a phone demo
+
+See **[DEPLOY.md](./DEPLOY.md)** for a step-by-step, no-terminal walkthrough
+(GitHub → MongoDB Atlas → Vercel). After deploying, visit `/api/init?seed=1`
+once to create indexes and load sample data.
+
+## Getting started (local)
 
 Pick a database, then run the app. `npm test` runs the logic suite with no
 database at all.

@@ -13,6 +13,15 @@ export const ROLLING_STATS_DAYS = 30;
 /** A gap larger than this between session start and now triggers a fresh greeting (hours). */
 export const GREETING_THRESHOLD_HOURS = 12;
 
+/**
+ * An in-progress session older than this is auto-submitted, and the landing
+ * hero flips from "Resume" to "Launch" (punch-list 3).
+ */
+export const SESSION_TTL_HOURS = 2;
+
+/** Default weight increment for the button-first logging suggestions (lbs). */
+export const DEFAULT_WEIGHT_STEP = 5;
+
 export const READINESS_MIN = 1;
 export const READINESS_MAX = 5;
 
@@ -41,3 +50,4 @@ export const HOUR_MS = 60 * 60 * 1000;
 export const ADAPTIVE_WINDOW_MS = ADAPTIVE_WINDOW_DAYS * DAY_MS;
 export const ROLLING_STATS_MS = ROLLING_STATS_DAYS * DAY_MS;
 export const GREETING_THRESHOLD_MS = GREETING_THRESHOLD_HOURS * HOUR_MS;
+export const SESSION_TTL_MS = SESSION_TTL_HOURS * HOUR_MS;

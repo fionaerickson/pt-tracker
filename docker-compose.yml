@@ -1,0 +1,14 @@
+# Local MongoDB for development. Run: `docker compose up -d`
+# Then point the app at it:  MONGODB_URI="mongodb://localhost:27017"
+services:
+  mongo:
+    image: mongo:7
+    container_name: pt-tracker-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - pt-mongo-data:/data/db
+    restart: unless-stopped
+
+volumes:
+  pt-mongo-data:

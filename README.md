@@ -102,6 +102,24 @@ npm test   # 19 tests across the three logic blocks
 | PATCH/DELETE | `/api/logs/:id` | edit (incl. `rounds` quantity) / remove |
 | GET | `/api/stats` | rolling 30-day completed-workout count |
 
+## Screens
+
+Mobile-first, Roboto, with a bottom tab bar (Today · Plan · Progress · Bank):
+
+- **Today** (`/`) — hub: resume an in-progress session, Plan Workout, Progress Tracking.
+- **Plan Workout** (`/plan`) — search exercises into a Workout Menu, then **Save
+  Workout** or **Launch Workout** (readiness interstitial → Today's Workout).
+  Saved workouts launch the same way.
+- **Today's Workout** (`/today`) — planned exercises for quick logging + the
+  **Exercise Log**; each exercise opens a log screen with **Save and Add Another
+  Set** / **Submit**. Finish → celebration + summary.
+- **Progress Tracking** (`/progress`) — per-exercise trend chart + last PR.
+- **Exercise Bank** (`/bank`) — structured fields: progress goal, muscle group,
+  starting weight, starting reps (min/max), purpose, equipment (multiselect).
+
+Difficulty-aware nudges (punch-list 1/6): a most-recent set rated 1/5 encourages a
+bump; a 5/5 postpones an otherwise-firing nudge; **PT** exercises never get nudges.
+
 ## Open decisions (spec §7)
 
 Safe defaults are implemented so the build is unblocked:

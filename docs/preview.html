@@ -3,172 +3,191 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>PT Tracker — screen preview</title>
+    <title>PT Tracker — screen preview (v2)</title>
     <style>
-      /* Inlined from src/app/globals.css — static styling preview, no DB/server needed.
-         Markup mirrors the real components so feedback maps to code. */
+      @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
       :root {
-        --bg: #0f1115; --panel: #171a21; --panel-2: #1f242d; --border: #2a313c;
-        --text: #e6e8eb; --muted: #9aa3ad; --accent: #5b8cff; --accent-2: #3ddc97;
-        --warn: #ffb454; --danger: #ff6b6b;
+        --bg:#eef0f7; --surface:#fff; --ink:#1b1d39; --navy:#2b2d77; --blue:#4a5cf2;
+        --blue-soft:#e7eaff; --periwinkle:#9aa7ff; --muted:#6b7090; --line:#e3e6f0;
+        --good:#1fb486; --warn:#e8870b; --danger:#e0506b; --radius:16px;
       }
-      * { box-sizing: border-box; }
-      body { font-family: system-ui, -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--text); }
-      .screen { max-width: 720px; margin: 0 auto 2.5rem; padding: 1.5rem 1rem; border-bottom: 2px dashed var(--border); }
-      .screen-label { font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.75rem; }
-      h1 { font-size: 1.6rem; }
-      a { color: var(--accent); }
-      .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin-bottom: 0.75rem; }
-      .row { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
-      .spread { justify-content: space-between; }
-      button { font: inherit; border: 1px solid var(--border); background: var(--panel-2); color: var(--text); padding: 0.5rem 0.9rem; border-radius: 8px; cursor: pointer; }
-      button.primary { background: var(--accent); border-color: var(--accent); color: #0b1020; font-weight: 600; }
-      button.ghost { background: transparent; }
-      button.danger { border-color: var(--danger); color: var(--danger); }
-      input, select { font: inherit; background: var(--panel-2); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 0.45rem 0.6rem; }
-      label { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.85rem; color: var(--muted); }
-      .muted { color: var(--muted); }
-      .pill { display: inline-block; font-size: 0.75rem; padding: 0.1rem 0.5rem; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--border); color: var(--muted); margin-right: 0.2rem; }
-      .nudge { border-left: 3px solid var(--warn); background: rgba(255,180,84,0.08); padding: 0.6rem 0.8rem; border-radius: 8px; color: var(--warn); }
-      .pr { border-left: 3px solid var(--accent-2); background: rgba(61,220,151,0.08); padding: 0.6rem 0.8rem; border-radius: 8px; margin-bottom: 0.5rem; }
-      nav.tabs { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
-      .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
-      @keyframes pop { 0% { transform: scale(0.6); opacity: 0; } 60% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
-      .celebrate { text-align: center; font-size: 3rem; animation: pop 0.6s ease-out; }
-      .banner { background: var(--panel-2); border: 1px solid var(--border); padding: 0.75rem 1rem; text-align: center; color: var(--muted); font-size: 0.85rem; }
+      * { box-sizing:border-box; }
+      body { margin:0; background:#dfe3ef; font-family:"Roboto",system-ui,sans-serif; color:var(--ink); }
+      .wrap { display:flex; flex-wrap:wrap; gap:22px; padding:24px; justify-content:center; }
+      .phone { width:330px; background:var(--bg); border-radius:28px; border:10px solid #20223f; overflow:hidden; box-shadow:0 12px 30px rgba(20,22,50,.25); }
+      .scr { padding:16px 14px 18px; min-height:560px; position:relative; }
+      .label { text-align:center; font-size:12px; color:#3a3d6b; font-weight:700; letter-spacing:.05em; text-transform:uppercase; margin:4px 0 8px; }
+      h1 { font-size:22px; font-weight:700; margin:4px 0 14px; }
+      h2 { font-size:16px; font-weight:700; margin:16px 0 8px; }
+      .muted { color:var(--muted); }
+      .card { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:14px; margin-bottom:10px; }
+      .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+      .spread { justify-content:space-between; }
+      .col { display:flex; flex-direction:column; gap:8px; }
+      .btn { min-height:50px; border:1px solid var(--line); background:var(--surface); color:var(--ink); border-radius:14px; padding:0 16px; font-weight:500; display:flex; align-items:center; justify-content:center; font-size:15px; }
+      .btn.block { width:100%; }
+      .btn.primary { background:var(--blue); border-color:var(--blue); color:#fff; }
+      .btn.navy { background:var(--navy); border-color:var(--navy); color:#fff; }
+      .btn.sm { min-height:38px; border-radius:10px; font-size:13px; padding:0 12px; }
+      .btn.danger { border-color:var(--danger); color:var(--danger); }
+      .hero { flex-direction:column; align-items:flex-start; min-height:84px; text-align:left; gap:3px; padding:14px; }
+      .hero .big { font-size:18px; font-weight:700; }
+      .hero .sub { font-size:13px; opacity:.85; font-weight:400; }
+      input,select { width:100%; border:1px solid var(--line); border-radius:12px; padding:11px 12px; font-family:inherit; font-size:14px; background:#fff; color:var(--ink); }
+      label { display:flex; flex-direction:column; gap:4px; font-size:12px; font-weight:500; color:var(--muted); }
+      .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+      .pill { display:inline-block; font-size:11px; padding:2px 9px; border-radius:999px; background:var(--blue-soft); color:var(--navy); margin:0 4px 3px 0; }
+      .pill.pt { background:#eafaf3; color:var(--good); }
+      .chip { border:1px solid var(--line); border-radius:999px; padding:7px 12px; font-size:13px; color:var(--muted); background:#fff; }
+      .chip.on { background:var(--blue); border-color:var(--blue); color:#fff; }
+      .nudge { border-left:4px solid var(--warn); background:#fff7ec; padding:10px 12px; border-radius:12px; color:#92560a; font-size:13px; margin:10px 0; }
+      .pr { border-left:4px solid var(--good); background:#eafaf3; padding:10px 12px; border-radius:12px; margin-bottom:8px; font-size:14px; }
+      .tabbar { display:flex; justify-content:space-around; border-top:1px solid var(--line); background:#fff; padding:6px 0; margin:14px -14px -18px; }
+      .tabbar a { flex:1; text-align:center; font-size:11px; color:var(--muted); font-weight:500; }
+      .tabbar a .ico { display:block; font-size:19px; }
+      .tabbar a.active { color:var(--blue); }
+      .chart { width:100%; height:150px; background:#fff; border:1px solid var(--line); border-radius:var(--radius); }
+      .celebrate { text-align:center; font-size:46px; }
+      .overlay { background:rgba(20,22,50,.55); border-radius:18px; padding:14px; }
+      .sheet { background:#fff; border-radius:16px; padding:14px; }
     </style>
   </head>
   <body>
-    <div class="banner">
-      Static styling preview of the PT Tracker screens — open in any browser. No server or database required.
+    <div class="wrap">
+      <!-- TODAY HUB -->
+      <div class="phone"><div class="scr">
+        <div class="label">Today — hub</div>
+        <h1>Today</h1>
+        <div class="btn primary hero block"><span><span class="big">Resume today's workout →</span><br /><span class="sub">Readiness 4/5 · in progress</span></span></div>
+        <div class="col" style="margin-top:10px">
+          <div class="btn navy hero block"><span><span class="big">📋 Plan Workout</span><br /><span class="sub">Build a session or launch a saved one</span></span></div>
+          <div class="btn hero block"><span><span class="big">📈 Progress Tracking</span><br /><span class="sub">Charts & personal bests by exercise</span></span></div>
+        </div>
+        <div class="card" style="text-align:center;margin-top:14px"><div style="font-size:26px;font-weight:700">7</div><div class="muted">workouts in the last 30 days</div></div>
+        <div class="tabbar"><a class="active"><span class="ico">🏠</span>Today</a><a><span class="ico">📋</span>Plan</a><a><span class="ico">📈</span>Progress</a><a><span class="ico">🏋️</span>Bank</a></div>
+      </div></div>
+
+      <!-- PLAN WORKOUT -->
+      <div class="phone"><div class="scr">
+        <div class="label">Plan Workout</div>
+        <h1>Plan Workout</h1>
+        <input placeholder="🔍 Search exercises…" />
+        <h2>Saved workouts</h2>
+        <div class="card"><strong>Leg Day</strong><div class="muted" style="font-size:13px">3 exercises · tap to launch</div></div>
+        <h2>Workout Menu</h2>
+        <div class="card row spread"><strong>Bulgarian Split Squat</strong><div class="btn danger sm">Remove</div></div>
+        <div class="card row spread"><strong>Plank</strong><div class="btn danger sm">Remove</div></div>
+        <div class="row" style="margin-top:10px"><div class="btn block" style="flex:1">Save Workout</div><div class="btn primary block" style="flex:1">Launch Workout</div></div>
+        <div class="tabbar"><a><span class="ico">🏠</span>Today</a><a class="active"><span class="ico">📋</span>Plan</a><a><span class="ico">📈</span>Progress</a><a><span class="ico">🏋️</span>Bank</a></div>
+      </div></div>
+
+      <!-- READINESS INTERSTITIAL -->
+      <div class="phone"><div class="scr" style="background:#c9cee2">
+        <div class="label">Readiness interstitial</div>
+        <div style="height:120px"></div>
+        <div class="sheet">
+          <h1 style="margin-bottom:2px">How are you feeling?</h1>
+          <p class="muted" style="margin-top:0">Sets the readiness for today's session.</p>
+          <div class="col">
+            <div class="btn navy block">1 · Flare-up</div>
+            <div class="btn navy block">2 · Rough</div>
+            <div class="btn navy block">3 · Okay</div>
+            <div class="btn navy block">4 · Good</div>
+            <div class="btn navy block">5 · Great</div>
+            <div class="btn block">Cancel</div>
+          </div>
+        </div>
+      </div></div>
+
+      <!-- TODAY'S WORKOUT -->
+      <div class="phone"><div class="scr">
+        <div class="label">Today's Workout</div>
+        <div class="row spread"><h1>Today's Workout</h1><span class="pill">readiness 4/5</span></div>
+        <div class="card row spread"><span><strong>Bulgarian Split Squat</strong><div class="muted" style="font-size:13px">3 sets logged</div></span><span>→</span></div>
+        <div class="card row spread"><span><strong>Plank</strong> <span class="pill pt">PT</span><div class="muted" style="font-size:13px">Tap to log</div></span><span>→</span></div>
+        <h2>Exercise Log <span class="muted">(3 sets)</span></h2>
+        <div class="card"><strong>Bulgarian Split Squat</strong><div class="muted" style="font-size:13px">30lbs · 10 reps · 3 rounds</div></div>
+        <div class="btn primary block" style="margin-top:10px">Finish workout 🎉</div>
+        <div class="tabbar"><a class="active"><span class="ico">🏠</span>Today</a><a><span class="ico">📋</span>Plan</a><a><span class="ico">📈</span>Progress</a><a><span class="ico">🏋️</span>Bank</a></div>
+      </div></div>
+
+      <!-- LOG SCREEN + NUDGE -->
+      <div class="phone"><div class="scr">
+        <div class="label">Log a set — overload nudge</div>
+        <div class="btn ghost sm" style="display:inline-flex;border:none;color:var(--muted);padding:0">← Today's Workout</div>
+        <h1 style="margin-top:8px">Bulgarian Split Squat</h1>
+        <div class="nudge">Time for progressive overload — your weight has held at 30. Try a bump?</div>
+        <div class="grid2">
+          <label>Weight<input value="30" /></label>
+          <label>Unit<input value="lbs" /></label>
+          <label>Reps<input value="10" /></label>
+          <label>Duration (s)<input /></label>
+          <label>Difficulty (1–5)<input /></label>
+        </div>
+        <div class="col" style="margin-top:14px">
+          <div class="btn block">Save and Add Another Set</div>
+          <div class="btn primary block">Submit</div>
+        </div>
+      </div></div>
+
+      <!-- PROGRESS -->
+      <div class="phone"><div class="scr">
+        <div class="label">Progress Tracking</div>
+        <div class="btn ghost sm" style="display:inline-flex;border:none;color:var(--muted);padding:0">← All exercises</div>
+        <h1 style="margin-top:8px">Bulgarian Split Squat</h1>
+        <p class="muted" style="margin-top:-8px">Progress in weight over time</p>
+        <svg class="chart" viewBox="0 0 300 150" preserveAspectRatio="none">
+          <polyline points="16,134 284,134" stroke="#e3e6f0" stroke-width="1" fill="none" />
+          <path d="M16,110 L100,96 L184,70 L268,40" fill="none" stroke="#4a5cf2" stroke-width="2.5" />
+          <circle cx="16" cy="110" r="4" fill="#2b2d77" /><circle cx="100" cy="96" r="4" fill="#2b2d77" />
+          <circle cx="184" cy="70" r="4" fill="#2b2d77" /><circle cx="268" cy="40" r="4" fill="#2b2d77" />
+          <text x="16" y="12" font-size="10" fill="#6b7090">max 40</text>
+          <text x="16" y="148" font-size="10" fill="#6b7090">min 25</text>
+        </svg>
+        <h2>Last personal best</h2>
+        <p class="muted" style="font-size:13px">6/14/2026</p>
+        <div class="pr"><strong>new max weight</strong><div>New all-time max weight on Bulgarian Split Squat: 40 lbs!</div></div>
+        <div class="tabbar"><a><span class="ico">🏠</span>Today</a><a><span class="ico">📋</span>Plan</a><a class="active"><span class="ico">📈</span>Progress</a><a><span class="ico">🏋️</span>Bank</a></div>
+      </div></div>
+
+      <!-- BANK -->
+      <div class="phone"><div class="scr">
+        <div class="label">Exercise Bank — new fields</div>
+        <h1>Exercise Bank</h1>
+        <div class="card">
+          <strong>New exercise</strong>
+          <div class="col" style="margin-top:8px">
+            <label>Name<input value="Bulgarian Split Squat" /></label>
+            <div class="grid2">
+              <label>Progress goal<select><option>weight</option></select></label>
+              <label>Muscle group<select><option>legs</option></select></label>
+              <label>Starting weight (lbs)<input value="25" /></label>
+              <label>Purpose<select><option>Strength</option></select></label>
+              <label>Starting reps (min)<input value="8" /></label>
+              <label>Starting reps (max)<input value="12" /></label>
+            </div>
+            <div class="muted" style="font-size:12px;font-weight:500">Equipment</div>
+            <div class="row">
+              <span class="chip on">free weights</span><span class="chip">machine</span>
+              <span class="chip">band</span><span class="chip">none</span>
+            </div>
+            <div class="btn primary block">Add to bank</div>
+          </div>
+        </div>
+        <div class="tabbar"><a><span class="ico">🏠</span>Today</a><a><span class="ico">📋</span>Plan</a><a><span class="ico">📈</span>Progress</a><a class="active"><span class="ico">🏋️</span>Bank</a></div>
+      </div></div>
+
+      <!-- SUMMARY -->
+      <div class="phone"><div class="scr">
+        <div class="label">Celebration + summary</div>
+        <div class="celebrate">🎉</div>
+        <h1 style="text-align:center">Nice work!</h1>
+        <div class="card" style="text-align:center"><strong>9</strong> sets logged<br /><strong>7</strong> workouts in the last 30 days</div>
+        <h2>Personal bests</h2>
+        <div class="pr"><strong>new max weight</strong><div>New all-time max weight on Romanian Deadlift: 135 lbs!</div></div>
+        <div class="pr"><strong>variation win</strong><div>Back on Goblet Squat — first time in 14 days!</div></div>
+        <div class="btn primary block" style="margin-top:12px">Back to Today</div>
+      </div></div>
     </div>
-
-    <!-- 1. Greeting (§6.1) -->
-    <section class="screen">
-      <div class="screen-label">1 · Today — greeting (no open session)</div>
-      <nav class="tabs"><a href="#">Today</a><a href="#">Exercise bank</a></nav>
-      <h1>How are you feeling today?</h1>
-      <p class="muted">Your readiness gates overload nudges and shapes today's wins.</p>
-      <div class="card">
-        <div class="row">
-          <button class="primary">1 · Flare-up</button>
-          <button class="primary">2 · Rough</button>
-          <button class="primary">3 · Okay</button>
-          <button class="primary">4 · Good</button>
-          <button class="primary">5 · Great</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- 2. Resume (§6.1) -->
-    <section class="screen">
-      <div class="screen-label">2 · Today — session in progress (resume)</div>
-      <h1>Session in progress</h1>
-      <div class="card">
-        <p>Started 6/15/2026, 9:14:00 AM · readiness <span class="pill">4/5</span></p>
-        <button class="primary">Continue session →</button>
-      </div>
-    </section>
-
-    <!-- 3. Exercise bank (§6.7) -->
-    <section class="screen">
-      <div class="screen-label">3 · Exercise bank — create/edit + search/filter</div>
-      <h1>Exercise bank</h1>
-      <div class="card">
-        <strong>New exercise</strong>
-        <div class="grid2" style="margin-top: 0.6rem">
-          <label>Name<input value="Bulgarian Split Squat" /></label>
-          <label>Progress by<select><option>weight</option></select></label>
-          <label>Default weight<input type="number" value="25" /></label>
-          <label>Default unit<input value="lb" /></label>
-          <label>Usual reps (min)<input type="number" value="8" /></label>
-          <label>Usual reps (max)<input type="number" value="12" /></label>
-          <label>Tags (comma-separated)<input value="legs, unilateral, rehab" /></label>
-          <label>Equipment (comma-separated)<input value="dumbbell, bench" /></label>
-        </div>
-        <div class="row" style="margin-top: 0.6rem">
-          <label class="row" style="flex-direction: row; color: var(--text)"><input type="checkbox" checked /> Has weight</label>
-          <button class="primary">Add to bank</button>
-        </div>
-      </div>
-      <div class="row spread" style="margin: 1rem 0 0.5rem">
-        <input placeholder="Search by name…" />
-        <select><option>All</option><option>Done recently</option><option>Not done recently</option></select>
-      </div>
-      <div class="card row spread">
-        <div>
-          <strong>Bulgarian Split Squat</strong> <span class="pill">weight</span>
-          <span class="pill">legs</span><span class="pill">unilateral</span>
-          <div class="muted" style="font-size: 0.8rem; margin-top: 0.25rem">dumbbell, bench · last 6/13/2026</div>
-        </div>
-        <button class="ghost">Edit</button>
-      </div>
-      <div class="card row spread">
-        <div>
-          <strong>Plank</strong> <span class="pill">time</span> <span class="pill">core</span>
-          <div class="muted" style="font-size: 0.8rem; margin-top: 0.25rem">no equipment · last 6/13/2026</div>
-        </div>
-        <button class="ghost">Edit</button>
-      </div>
-    </section>
-
-    <!-- 4. Logging with overload nudge (§6.2/§6.3) -->
-    <section class="screen">
-      <div class="screen-label">4 · Logging — adaptive prefill + overload nudge</div>
-      <div class="row spread"><h1>Session</h1><span class="pill">readiness 4/5</span></div>
-      <div class="card">
-        <div class="row spread"><strong>Bulgarian Split Squat</strong><span class="pill">overload</span></div>
-        <p class="nudge">Time for progressive overload — your weight has held at 30 across recent ready sessions. Try a bump?</p>
-        <div class="grid2" style="margin-top: 0.6rem">
-          <label>Weight<input type="number" value="30" /></label>
-          <label>Unit<input value="lb" /></label>
-          <label>Reps<input type="number" value="10" /></label>
-          <label>Duration (s)<input type="number" /></label>
-          <label>Difficulty (1–5)<input type="number" /></label>
-        </div>
-        <div class="row" style="margin-top: 0.6rem">
-          <button class="primary">Add to cart</button>
-          <button class="ghost">Cancel</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- 5. Cart (§6.4) -->
-    <section class="screen">
-      <div class="screen-label">5 · Cart — quantity / edit / remove</div>
-      <h2>Cart <span class="muted">(5 sets)</span></h2>
-      <div class="card row spread">
-        <div>
-          <strong>Bulgarian Split Squat</strong>
-          <div class="muted" style="font-size: 0.85rem">30lb · 10 reps · 3 rounds</div>
-        </div>
-        <div class="row">
-          <button>−</button><span>3</span><button>+</button><button class="danger">Remove</button>
-        </div>
-      </div>
-      <div class="card row spread">
-        <div>
-          <strong>Plank</strong>
-          <div class="muted" style="font-size: 0.85rem">45s · 2 rounds</div>
-        </div>
-        <div class="row">
-          <button>−</button><span>2</span><button>+</button><button class="danger">Remove</button>
-        </div>
-      </div>
-      <button class="primary" style="margin-top: 1rem">Finish workout 🎉</button>
-    </section>
-
-    <!-- 6. Summary (§6.5/§6.6) -->
-    <section class="screen" style="border-bottom: none">
-      <div class="screen-label">6 · Celebration + summary</div>
-      <div class="celebrate">🎉</div>
-      <h1 style="text-align: center">Nice work!</h1>
-      <div class="card" style="text-align: center">
-        <p><strong>9</strong> sets logged · <strong>7</strong> workouts in the last 30 days</p>
-      </div>
-      <h2>Personal bests</h2>
-      <div class="pr"><strong>new max weight</strong><div>New all-time max weight on Romanian Deadlift: 135 lb!</div></div>
-      <div class="pr"><strong>variation win</strong><div>Back on Goblet Squat — first time in 14 days!</div></div>
-    </section>
   </body>
 </html>

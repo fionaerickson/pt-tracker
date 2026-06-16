@@ -6,21 +6,32 @@
  * with that serialization applied.
  */
 
-import type { ProgressBy, PrCategory, RepRange } from "./types";
+import type { ProgressBy, PrCategory, RepRange, MuscleGroup, Purpose, Equipment } from "./types";
 import type { PrefillResult } from "./logic/prefill";
 
 export interface ExerciseDTO {
   _id: string;
   userId: string;
   name: string;
-  tags: string[];
-  equipment: string[];
+  muscleGroup: MuscleGroup | null;
+  purpose: Purpose;
+  equipment: Equipment[];
   hasWeight: boolean;
   progressBy: ProgressBy;
   defaultWeight: number | null;
   defaultUnit: string;
   usualRepRange: RepRange;
+  tags: string[];
   lastPerformedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SavedWorkoutDTO {
+  _id: string;
+  userId: string;
+  name: string;
+  exerciseIds: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -49,6 +60,7 @@ export interface WorkoutDTO {
   readinessScore: number;
   startedAt: string;
   completedAt: string | null;
+  plannedExerciseIds: string[];
   summary: WorkoutSummaryDTO | null;
 }
 
@@ -88,10 +100,10 @@ export const api = {
   // Session (§6.1)
   session: () => request<SessionDTO>("/api/session"),
   currentCart: () => request<WorkoutDTO | null>("/api/workouts/current"),
-  startWorkout: (readinessScore: number) =>
+  startWorkout: (readinessScore: number, plannedExerciseIds: string[] = []) =>
     request<WorkoutDTO>("/api/workouts", {
       method: "POST",
-      body: JSON.stringify({ readinessScore }),
+      body: JSON.stringify({ readinessScore, plannedExerciseIds }),
     }),
 
   // Bank (§6.7)
@@ -99,6 +111,7 @@ export const api = {
     const qs = new URLSearchParams(params).toString();
     return request<ExerciseDTO[]>(`/api/exercises${qs ? `?${qs}` : ""}`);
   },
+  getExercise: (id: string) => request<ExerciseDTO>(`/api/exercises/${id}`),
   createExercise: (body: Partial<ExerciseDTO>) =>
     request<ExerciseDTO>("/api/exercises", { method: "POST", body: JSON.stringify(body) }),
   updateExercise: (id: string, body: Partial<ExerciseDTO>) =>
@@ -122,4 +135,21 @@ export const api = {
   completeWorkout: (workoutId: string) =>
     request<WorkoutDTO>(`/api/workouts/${workoutId}/complete`, { method: "POST" }),
   stats: () => request<{ windowDays: number; workoutsLast30Days: number }>("/api/stats"),
+
+  // Progress tracking (punch-list 2)
+  history: (exerciseId: string) => request<LogDTO[]>(`/api/exercises/${exerciseId}/history`),
+  lastPr: (exerciseId: string) =>
+    request<{ completedAt?: string; workoutId?: string; prs?: PrDTO[]; lastPr?: null }>(
+      `/api/exercises/${exerciseId}/last-pr`,
+    ),
+
+  // Saved + planned workouts (punch-list 3)
+  listSavedWorkouts: () => request<SavedWorkoutDTO[]>("/api/saved-workouts"),
+  saveWorkout: (name: string, exerciseIds: string[]) =>
+    request<SavedWorkoutDTO>("/api/saved-workouts", {
+      method: "POST",
+      body: JSON.stringify({ name, exerciseIds }),
+    }),
+  deleteSavedWorkout: (id: string) =>
+    request<{ deleted: boolean }>(`/api/saved-workouts/${id}`, { method: "DELETE" }),
 };

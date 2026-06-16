@@ -21,6 +21,15 @@ export async function getWindowedLogs(userId: string, exerciseId: string): Promi
     .toArray();
 }
 
+/** Full history for one exercise, oldest-first — powers the progress chart (punch-list 2). */
+export async function getExerciseHistory(userId: string, exerciseId: string): Promise<Log[]> {
+  const { logs } = await getCollections();
+  return logs
+    .find({ userId, exerciseId: new ObjectId(exerciseId) })
+    .sort({ performedAt: 1 })
+    .toArray();
+}
+
 /** All logs for a workout — the cart contents (§6.4). */
 export async function getCartLogs(userId: string, workoutId: string): Promise<Log[]> {
   const { logs } = await getCollections();

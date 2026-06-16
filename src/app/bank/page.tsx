@@ -1,21 +1,42 @@
 "use client";
 
 /**
- * Exercise bank — spec §6.7 + build step 2.
- * Search/filter the bank and create or edit exercise templates.
+ * Exercise Bank (punch-list 5) — structured fields:
+ * name, progress goal, muscle group, starting weight, starting reps (min/max),
+ * purpose, equipment (multiselect). Default weight unit is lbs.
  */
 import { useCallback, useEffect, useState } from "react";
 import { api, type ExerciseDTO } from "@/lib/client";
-import type { ProgressBy } from "@/lib/types";
+import {
+  EQUIPMENT_OPTIONS,
+  MUSCLE_GROUP_OPTIONS,
+  PROGRESS_GOAL_OPTIONS,
+  PURPOSE_OPTIONS,
+  type Equipment,
+  type MuscleGroup,
+  type ProgressBy,
+  type Purpose,
+} from "@/lib/types";
 
-const EMPTY: Partial<ExerciseDTO> = {
+interface FormState {
+  name: string;
+  progressBy: ProgressBy;
+  muscleGroup: MuscleGroup | "";
+  defaultWeight: string;
+  repMin: string;
+  repMax: string;
+  purpose: Purpose;
+  equipment: Equipment[];
+}
+
+const EMPTY: FormState = {
   name: "",
-  hasWeight: true,
   progressBy: "weight",
-  defaultWeight: null,
-  defaultUnit: "lb",
-  usualRepRange: { min: 8, max: 12 },
-  tags: [],
+  muscleGroup: "",
+  defaultWeight: "",
+  repMin: "min",
+  repMax: "max",
+  purpose: "Strength",
   equipment: [],
 };
 
@@ -24,7 +45,7 @@ export default function Bank() {
   const [name, setName] = useState("");
   const [recency, setRecency] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [form, setForm] = useState<Partial<ExerciseDTO>>(EMPTY);
+  const [form, setForm] = useState<FormState>(EMPTY);
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -42,17 +63,33 @@ export default function Bank() {
     load();
   }, [load]);
 
+  const set = (patch: Partial<FormState>) => setForm((f) => ({ ...f, ...patch }));
+  const toggleEquip = (e: Equipment) =>
+    setForm((f) => ({
+      ...f,
+      equipment: f.equipment.includes(e)
+        ? f.equipment.filter((x) => x !== e)
+        : [...f.equipment, e],
+    }));
+
   async function save() {
     setError(null);
+    const repMin = Number(form.repMin);
+    const repMax = Number(form.repMax);
+    const payload: Partial<ExerciseDTO> = {
+      name: form.name,
+      progressBy: form.progressBy,
+      muscleGroup: form.muscleGroup || null,
+      purpose: form.purpose,
+      equipment: form.equipment,
+      defaultWeight: form.defaultWeight === "" ? null : Number(form.defaultWeight),
+      defaultUnit: "lbs",
+      usualRepRange: {
+        min: Number.isFinite(repMin) ? repMin : 8,
+        max: Number.isFinite(repMax) ? repMax : 12,
+      },
+    };
     try {
-      const payload = {
-        ...form,
-        tags: typeof form.tags === "string" ? (form.tags as string).split(",").map((s) => s.trim()).filter(Boolean) : form.tags,
-        equipment:
-          typeof form.equipment === "string"
-            ? (form.equipment as string).split(",").map((s) => s.trim()).filter(Boolean)
-            : form.equipment,
-      };
       if (editingId) await api.updateExercise(editingId, payload);
       else await api.createExercise(payload);
       setForm(EMPTY);
@@ -65,106 +102,120 @@ export default function Bank() {
 
   function edit(ex: ExerciseDTO) {
     setEditingId(ex._id);
-    setForm({ ...ex, tags: ex.tags.join(", ") as unknown as string[], equipment: ex.equipment.join(", ") as unknown as string[] });
+    setForm({
+      name: ex.name,
+      progressBy: ex.progressBy,
+      muscleGroup: ex.muscleGroup ?? "",
+      defaultWeight: ex.defaultWeight?.toString() ?? "",
+      repMin: ex.usualRepRange?.min?.toString() ?? "min",
+      repMax: ex.usualRepRange?.max?.toString() ?? "max",
+      purpose: ex.purpose,
+      equipment: ex.equipment ?? [],
+    });
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  const set = (patch: Partial<ExerciseDTO>) => setForm((f) => ({ ...f, ...patch }));
-
   return (
     <div>
-      <h1>Exercise bank</h1>
-      {error && <p className="danger">{error}</p>}
+      <h1>Exercise Bank</h1>
+      {error && <p style={{ color: "var(--danger)" }}>{error}</p>}
 
-      {/* Create / edit */}
       <div className="card">
         <strong>{editingId ? "Edit exercise" : "New exercise"}</strong>
-        <div className="grid2" style={{ marginTop: "0.6rem" }}>
+        <div className="col" style={{ marginTop: "0.6rem" }}>
           <label>
             Name
-            <input value={form.name ?? ""} onChange={(e) => set({ name: e.target.value })} />
+            <input value={form.name} onChange={(e) => set({ name: e.target.value })} />
           </label>
-          <label>
-            Progress by
-            <select
-              value={form.progressBy}
-              onChange={(e) => set({ progressBy: e.target.value as ProgressBy })}
-            >
-              <option value="weight">weight</option>
-              <option value="reps">reps</option>
-              <option value="time">time</option>
-            </select>
-          </label>
-          <label>
-            Default weight
-            <input
-              type="number"
-              value={form.defaultWeight ?? ""}
-              onChange={(e) => set({ defaultWeight: e.target.value === "" ? null : Number(e.target.value) })}
-            />
-          </label>
-          <label>
-            Default unit
-            <input value={form.defaultUnit ?? ""} onChange={(e) => set({ defaultUnit: e.target.value })} />
-          </label>
-          <label>
-            Usual reps (min)
-            <input
-              type="number"
-              value={form.usualRepRange?.min ?? ""}
-              onChange={(e) =>
-                set({ usualRepRange: { min: Number(e.target.value), max: form.usualRepRange?.max ?? 12 } })
-              }
-            />
-          </label>
-          <label>
-            Usual reps (max)
-            <input
-              type="number"
-              value={form.usualRepRange?.max ?? ""}
-              onChange={(e) =>
-                set({ usualRepRange: { min: form.usualRepRange?.min ?? 8, max: Number(e.target.value) } })
-              }
-            />
-          </label>
-          <label>
-            Tags (comma-separated)
-            <input
-              value={(form.tags as unknown as string) ?? ""}
-              onChange={(e) => set({ tags: e.target.value as unknown as string[] })}
-            />
-          </label>
-          <label>
-            Equipment (comma-separated)
-            <input
-              value={(form.equipment as unknown as string) ?? ""}
-              onChange={(e) => set({ equipment: e.target.value as unknown as string[] })}
-            />
-          </label>
-        </div>
-        <div className="row" style={{ marginTop: "0.6rem" }}>
-          <label className="row" style={{ flexDirection: "row", color: "var(--text)" }}>
-            <input
-              type="checkbox"
-              checked={form.hasWeight ?? true}
-              onChange={(e) => set({ hasWeight: e.target.checked })}
-            />
-            Has weight
-          </label>
-          <button className="primary" disabled={!form.name} onClick={save}>
-            {editingId ? "Save changes" : "Add to bank"}
-          </button>
-          {editingId && (
-            <button className="ghost" onClick={() => { setForm(EMPTY); setEditingId(null); }}>
-              Cancel
+          <div className="grid2">
+            <label>
+              Progress goal
+              <select value={form.progressBy} onChange={(e) => set({ progressBy: e.target.value as ProgressBy })}>
+                {PROGRESS_GOAL_OPTIONS.map((o) => (
+                  <option key={o} value={o}>
+                    {o === "na" ? "N/A" : o}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Muscle group
+              <select value={form.muscleGroup} onChange={(e) => set({ muscleGroup: e.target.value as MuscleGroup | "" })}>
+                <option value="">—</option>
+                {MUSCLE_GROUP_OPTIONS.map((o) => (
+                  <option key={o} value={o}>
+                    {o}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Starting weight (lbs)
+              <input
+                type="number"
+                inputMode="decimal"
+                value={form.defaultWeight}
+                onChange={(e) => set({ defaultWeight: e.target.value })}
+              />
+            </label>
+            <label>
+              Purpose
+              <select value={form.purpose} onChange={(e) => set({ purpose: e.target.value as Purpose })}>
+                {PURPOSE_OPTIONS.map((o) => (
+                  <option key={o} value={o}>
+                    {o}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Starting reps (min)
+              <input value={form.repMin} onChange={(e) => set({ repMin: e.target.value })} />
+            </label>
+            <label>
+              Starting reps (max)
+              <input value={form.repMax} onChange={(e) => set({ repMax: e.target.value })} />
+            </label>
+          </div>
+
+          <div>
+            <div className="muted" style={{ fontSize: "0.8rem", marginBottom: "0.4rem", fontWeight: 500 }}>
+              Equipment
+            </div>
+            <div className="row">
+              {EQUIPMENT_OPTIONS.map((e) => (
+                <span
+                  key={e}
+                  className={`chip ${form.equipment.includes(e) ? "on" : ""}`}
+                  onClick={() => toggleEquip(e)}
+                >
+                  {e}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="row">
+            <button className="primary block" disabled={!form.name} onClick={save}>
+              {editingId ? "Save changes" : "Add to bank"}
             </button>
-          )}
+            {editingId && (
+              <button
+                className="ghost"
+                onClick={() => {
+                  setForm(EMPTY);
+                  setEditingId(null);
+                }}
+              >
+                Cancel
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Search / filter */}
-      <div className="row spread" style={{ margin: "1rem 0 0.5rem" }}>
-        <input placeholder="Search by name…" value={name} onChange={(e) => setName(e.target.value)} />
+      <div className="grid2" style={{ margin: "1rem 0 0.5rem" }}>
+        <input placeholder="🔍 Search by name…" value={name} onChange={(e) => setName(e.target.value)} />
         <select value={recency} onChange={(e) => setRecency(e.target.value)}>
           <option value="">All</option>
           <option value="recent">Done recently</option>
@@ -172,24 +223,20 @@ export default function Bank() {
         </select>
       </div>
 
-      {/* List */}
       {exercises.length === 0 && <p className="muted">No exercises yet — add one above.</p>}
       {exercises.map((ex) => (
         <div key={ex._id} className="card row spread">
           <div>
             <strong>{ex.name}</strong>{" "}
-            <span className="pill">{ex.progressBy}</span>{" "}
-            {ex.tags.map((t) => (
-              <span key={t} className="pill">{t}</span>
-            ))}
+            <span className={`pill ${ex.purpose === "PT" ? "pt" : ""}`}>{ex.purpose}</span>{" "}
+            <span className="pill">{ex.progressBy === "na" ? "N/A" : ex.progressBy}</span>
             <div className="muted" style={{ fontSize: "0.8rem", marginTop: "0.25rem" }}>
-              {ex.equipment.join(", ") || "no equipment"} ·{" "}
-              {ex.lastPerformedAt
-                ? `last ${new Date(ex.lastPerformedAt).toLocaleDateString()}`
-                : "never performed"}
+              {ex.muscleGroup ?? "—"} · {ex.equipment.join(", ") || "no equipment"}
             </div>
           </div>
-          <button className="ghost" onClick={() => edit(ex)}>Edit</button>
+          <button className="ghost sm" onClick={() => edit(ex)}>
+            Edit
+          </button>
         </div>
       ))}
     </div>

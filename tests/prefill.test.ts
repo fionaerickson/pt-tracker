@@ -8,8 +8,10 @@ function makeExercise(overrides: Partial<Exercise> = {}): Exercise {
     _id: { toString: () => "e1" } as unknown as Exercise["_id"],
     userId: "u1",
     name: "Bulgarian Split Squat",
+    muscleGroup: "legs",
+    purpose: "Strength",
     tags: ["legs"],
-    equipment: ["dumbbell"],
+    equipment: ["free weights"],
     hasWeight: true,
     progressBy: "weight",
     defaultWeight: 25,
@@ -34,7 +36,7 @@ describe("computePrefill — spec §6.2", () => {
       exercise: makeExercise(),
     });
     expect(result.branch).toBe("overload");
-    expect(result.overload).toEqual({ metric: "weight", value: 30 });
+    expect(result.overload).toEqual({ metric: "weight", value: 30, reason: "stagnant" });
     expect(result.fields.weight).toBe(30); // stagnant value
     expect(result.fields.reps).toBe(10); // from most recent log (2026-06-12)
   });

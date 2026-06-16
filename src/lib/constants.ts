@@ -28,6 +28,12 @@ export const OVERLOAD_MIN_QUALIFYING = 2;
 /** Cap on the number of PRs shown per workout summary. */
 export const MAX_PRS = 3;
 
+/** A most-recent qualifying log at this difficulty means "too easy" → encourage a bump. */
+export const DIFFICULTY_TOO_EASY = 1;
+
+/** A most-recent qualifying log at this difficulty postpones an otherwise-firing nudge. */
+export const DIFFICULTY_TOO_HARD = 5;
+
 // Derived helpers for working with the windows in milliseconds.
 export const DAY_MS = 24 * 60 * 60 * 1000;
 export const HOUR_MS = 60 * 60 * 1000;

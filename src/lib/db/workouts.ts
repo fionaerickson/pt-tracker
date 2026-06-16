@@ -34,7 +34,11 @@ export async function resolveSession(userId: string): Promise<SessionResolution>
 }
 
 /** Creating this workout is what starts the cart (§6.1 step 4). */
-export async function createWorkout(userId: string, readinessScore: number): Promise<Workout> {
+export async function createWorkout(
+  userId: string,
+  readinessScore: number,
+  plannedExerciseIds: string[] = [],
+): Promise<Workout> {
   const { workouts } = await getCollections();
   const now = new Date();
   const doc: Omit<Workout, "_id"> = {
@@ -43,12 +47,30 @@ export async function createWorkout(userId: string, readinessScore: number): Pro
     readinessScore,
     startedAt: now,
     completedAt: null,
+    plannedExerciseIds: plannedExerciseIds.map((id) => new ObjectId(id)),
     summary: null,
     createdAt: now,
     updatedAt: now,
   };
   const result = await workouts.insertOne(doc as Workout);
   return { ...(doc as Workout), _id: result.insertedId };
+}
+
+/** Add exercises to the active session's planned list (idempotent via $addToSet). */
+export async function addPlannedExercises(
+  userId: string,
+  workoutId: string,
+  exerciseIds: string[],
+): Promise<Workout | null> {
+  const { workouts } = await getCollections();
+  return workouts.findOneAndUpdate(
+    { _id: new ObjectId(workoutId), userId },
+    {
+      $addToSet: { plannedExerciseIds: { $each: exerciseIds.map((id) => new ObjectId(id)) } },
+      $set: { updatedAt: new Date() },
+    },
+    { returnDocument: "after" },
+  );
 }
 
 export async function getWorkout(userId: string, id: string): Promise<Workout | null> {

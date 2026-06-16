@@ -19,6 +19,7 @@ async function main() {
   const exercises = db.collection("exercises");
   const workouts = db.collection("workouts");
   const logs = db.collection("logs");
+  const savedWorkouts = db.collection("savedWorkouts");
 
   await exercises.createIndex({ userId: 1, lastPerformedAt: -1 }); // recency filter / bank ordering
   await exercises.createIndex({ userId: 1, equipment: 1 }); // multikey equipment filter
@@ -31,8 +32,11 @@ async function main() {
   await workouts.createIndex({ userId: 1, status: 1, completedAt: -1 }); // 30-day rolling count
   await workouts.createIndex({ userId: 1, "summary.prs.exerciseId": 1, completedAt: -1 }); // last PR on exercise X
 
+  await savedWorkouts.createIndex({ userId: 1, name: 1 }, { unique: true }); // unique name per user
+  await savedWorkouts.createIndex({ userId: 1, updatedAt: -1 }); // list ordering
+
   console.log("Indexes created (or already present):");
-  for (const coll of [exercises, workouts, logs]) {
+  for (const coll of [exercises, workouts, logs, savedWorkouts]) {
     const idx = await coll.indexes();
     console.log(`  ${coll.collectionName}:`, idx.map((i) => i.name).join(", "));
   }

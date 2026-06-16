@@ -70,6 +70,7 @@ export function computePrefill({
     currentReadiness,
     windowedLogs,
     progressBy: exercise.progressBy,
+    purpose: exercise.purpose,
   });
 
   if (overload && recent) {

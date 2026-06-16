@@ -28,7 +28,7 @@ async function main() {
   // picks up the in-memory URI.
   const { getCollections } = await import("../src/lib/mongodb");
   const { seed } = await import("./seed");
-  const { exercises, workouts, logs } = await getCollections();
+  const { exercises, workouts, logs, db } = await getCollections();
   await exercises.createIndex({ userId: 1, lastPerformedAt: -1 });
   await exercises.createIndex({ userId: 1, equipment: 1 });
   await exercises.createIndex({ userId: 1, tags: 1 });
@@ -36,6 +36,9 @@ async function main() {
   await workouts.createIndex({ userId: 1, status: 1 });
   await workouts.createIndex({ userId: 1, status: 1, completedAt: -1 });
   await workouts.createIndex({ userId: 1, "summary.prs.exerciseId": 1, completedAt: -1 });
+  const savedWorkouts = db.collection("savedWorkouts");
+  await savedWorkouts.createIndex({ userId: 1, name: 1 }, { unique: true });
+  await savedWorkouts.createIndex({ userId: 1, updatedAt: -1 });
   const result = await seed();
 
   console.log(`\n  In-memory MongoDB at ${uri}`);

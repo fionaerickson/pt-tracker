@@ -12,8 +12,37 @@ import type { ObjectId } from "mongodb";
 
 export type WorkoutStatus = "in_progress" | "completed";
 
-/** Metric progressive overload watches for a given exercise. */
-export type ProgressBy = "weight" | "reps" | "time";
+/** Metric progressive overload watches for a given exercise ("na" → never nudge). */
+export type ProgressBy = "weight" | "reps" | "time" | "na";
+
+/** Coarse muscle group for the bank. */
+export type MuscleGroup = "arms" | "core" | "legs";
+
+/** Why the exercise is in the bank. PT exercises never receive overload nudges. */
+export type Purpose = "PT" | "Strength";
+
+/** Fixed equipment options (multiselect in the bank). */
+export type Equipment =
+  | "free weights"
+  | "machine"
+  | "band"
+  | "yoga block"
+  | "cable tower"
+  | "none"
+  | "other";
+
+export const EQUIPMENT_OPTIONS: Equipment[] = [
+  "free weights",
+  "machine",
+  "band",
+  "yoga block",
+  "cable tower",
+  "none",
+  "other",
+];
+export const MUSCLE_GROUP_OPTIONS: MuscleGroup[] = ["arms", "core", "legs"];
+export const PROGRESS_GOAL_OPTIONS: ProgressBy[] = ["weight", "reps", "time", "na"];
+export const PURPOSE_OPTIONS: Purpose[] = ["PT", "Strength"];
 
 export type PrCategory =
   | "new_max_weight"
@@ -32,15 +61,34 @@ export interface Exercise {
   _id: ObjectId;
   userId: string;
   name: string;
-  tags: string[];
-  equipment: string[];
+  /** Coarse muscle group: arms | core | legs. */
+  muscleGroup: MuscleGroup | null;
+  /** PT | Strength. PT exercises never receive overload nudges (§ punch-list 6). */
+  purpose: Purpose;
+  equipment: Equipment[];
   hasWeight: boolean;
+  /** The "progress goal": metric overload watches, or "na". */
   progressBy: ProgressBy;
+  /** Starting weight (lbs by default). */
   defaultWeight: number | null;
   defaultUnit: string;
+  /** Starting reps (min/max). */
   usualRepRange: RepRange;
+  /** Free-form tags (retained alongside the structured fields). */
+  tags: string[];
   /** DENORMALIZED for the recency filter (spec §4). */
   lastPerformedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** savedWorkouts — a named, reusable set of exercises ("Plan Workout" templates). */
+export interface SavedWorkout {
+  _id: ObjectId;
+  userId: string;
+  /** Unique per user. */
+  name: string;
+  exerciseIds: ObjectId[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -75,6 +123,8 @@ export interface Workout {
   readinessScore: number;
   startedAt: Date;
   completedAt: Date | null;
+  /** Exercises planned for this session (the "Today's Workout" list). */
+  plannedExerciseIds: ObjectId[];
   summary: WorkoutSummary | null;
   createdAt: Date;
   updatedAt: Date;

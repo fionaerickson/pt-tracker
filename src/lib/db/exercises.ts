@@ -1,33 +1,49 @@
 /**
  * Exercise bank data access — spec §6.7 (search/filter) and the create/edit
- * surface for build step 2.
+ * surface, with the structured bank fields (punch-list 5).
  */
 
 import { ObjectId, type Filter } from "mongodb";
 import { getCollections } from "@/lib/mongodb";
 import { ADAPTIVE_WINDOW_MS } from "@/lib/constants";
-import type { Exercise, ProgressBy, RepRange } from "@/lib/types";
+import type {
+  Exercise,
+  ProgressBy,
+  RepRange,
+  MuscleGroup,
+  Purpose,
+  Equipment,
+} from "@/lib/types";
 
 export interface ExerciseInput {
   name: string;
-  tags?: string[];
-  equipment?: string[];
-  hasWeight?: boolean;
+  muscleGroup?: MuscleGroup | null;
+  purpose?: Purpose;
+  equipment?: Equipment[];
+  /** Progress goal. */
   progressBy?: ProgressBy;
+  /** Starting weight (lbs by default). */
   defaultWeight?: number | null;
   defaultUnit?: string;
+  /** Starting reps. */
   usualRepRange?: RepRange;
+  tags?: string[];
+  hasWeight?: boolean;
 }
 
 export interface ExerciseFilters {
-  /** Multikey match — any of these equipment values. */
   equipment?: string[];
-  /** Multikey match — any of these tags. */
   tags?: string[];
-  /** Case-insensitive name substring match. */
+  muscleGroup?: string;
+  purpose?: string;
   name?: string;
-  /** "recent" → lastPerformedAt within window; "stale" → older or null. */
   recency?: "recent" | "stale";
+}
+
+/** Weight fields show when the goal is weight or a starting weight is set. */
+function deriveHasWeight(input: Partial<ExerciseInput>): boolean {
+  if (typeof input.hasWeight === "boolean") return input.hasWeight;
+  return input.progressBy === "weight" || input.defaultWeight != null;
 }
 
 export async function listExercises(
@@ -37,8 +53,10 @@ export async function listExercises(
   const { exercises } = await getCollections();
   const query: Filter<Exercise> = { userId };
 
-  if (filters.equipment?.length) query.equipment = { $in: filters.equipment };
+  if (filters.equipment?.length) query.equipment = { $in: filters.equipment as Equipment[] };
   if (filters.tags?.length) query.tags = { $in: filters.tags };
+  if (filters.muscleGroup) query.muscleGroup = filters.muscleGroup as MuscleGroup;
+  if (filters.purpose) query.purpose = filters.purpose as Purpose;
   if (filters.name) query.name = { $regex: escapeRegex(filters.name), $options: "i" };
 
   if (filters.recency) {
@@ -46,12 +64,11 @@ export async function listExercises(
     if (filters.recency === "recent") {
       query.lastPerformedAt = { $gte: cutoff };
     } else {
-      // "not done recently" — older than the window OR never performed.
       query.$or = [{ lastPerformedAt: { $lt: cutoff } }, { lastPerformedAt: null }];
     }
   }
 
-  return exercises.find(query).sort({ lastPerformedAt: -1 }).toArray();
+  return exercises.find(query).sort({ name: 1 }).toArray();
 }
 
 export async function getExercise(userId: string, id: string): Promise<Exercise | null> {
@@ -65,13 +82,15 @@ export async function createExercise(userId: string, input: ExerciseInput): Prom
   const doc: Omit<Exercise, "_id"> = {
     userId,
     name: input.name,
-    tags: input.tags ?? [],
+    muscleGroup: input.muscleGroup ?? null,
+    purpose: input.purpose ?? "Strength",
     equipment: input.equipment ?? [],
-    hasWeight: input.hasWeight ?? true,
+    hasWeight: deriveHasWeight(input),
     progressBy: input.progressBy ?? "weight",
     defaultWeight: input.defaultWeight ?? null,
-    defaultUnit: input.defaultUnit ?? "lb",
+    defaultUnit: input.defaultUnit ?? "lbs",
     usualRepRange: input.usualRepRange ?? { min: 8, max: 12 },
+    tags: input.tags ?? [],
     lastPerformedAt: null,
     createdAt: now,
     updatedAt: now,
@@ -86,10 +105,15 @@ export async function updateExercise(
   input: Partial<ExerciseInput>,
 ): Promise<Exercise | null> {
   const { exercises } = await getCollections();
-  const { ...fields } = input;
+  const fields: Record<string, unknown> = { ...input, updatedAt: new Date() };
+  // Keep hasWeight consistent when the goal or starting weight changes.
+  if ("progressBy" in input || "defaultWeight" in input || "hasWeight" in input) {
+    const current = await exercises.findOne({ _id: new ObjectId(id), userId });
+    if (current) fields.hasWeight = deriveHasWeight({ ...current, ...input });
+  }
   return exercises.findOneAndUpdate(
     { _id: new ObjectId(id), userId },
-    { $set: { ...fields, updatedAt: new Date() } },
+    { $set: fields },
     { returnDocument: "after" },
   );
 }

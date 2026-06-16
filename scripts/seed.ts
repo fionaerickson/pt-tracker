@@ -8,18 +8,20 @@
 
 import { ObjectId } from "mongodb";
 import { getCollections } from "../src/lib/mongodb";
-import type { Exercise, Workout, Log } from "../src/lib/types";
+import type { Exercise, Workout, Log, SavedWorkout } from "../src/lib/types";
 
 const DAY = 24 * 60 * 60 * 1000;
 
 export async function seed(userId = process.env.DEFAULT_USER_ID ?? "local-user") {
-  const { exercises, workouts, logs } = await getCollections();
+  const { exercises, workouts, logs, db } = await getCollections();
+  const savedWorkouts = db.collection<SavedWorkout>("savedWorkouts");
 
   // Reset this user's data so re-seeding is idempotent.
   await Promise.all([
     exercises.deleteMany({ userId }),
     workouts.deleteMany({ userId }),
     logs.deleteMany({ userId }),
+    savedWorkouts.deleteMany({ userId }),
   ]);
 
   const now = Date.now();
@@ -28,13 +30,15 @@ export async function seed(userId = process.env.DEFAULT_USER_ID ?? "local-user")
       _id: new ObjectId(),
       userId,
       name: "",
-      tags: [],
+      muscleGroup: null,
+      purpose: "Strength",
       equipment: [],
       hasWeight: true,
       progressBy: "weight",
       defaultWeight: null,
-      defaultUnit: "lb",
+      defaultUnit: "lbs",
       usualRepRange: { min: 8, max: 12 },
+      tags: [],
       lastPerformedAt: null,
       createdAt: new Date(now),
       updatedAt: new Date(now),
@@ -43,24 +47,27 @@ export async function seed(userId = process.env.DEFAULT_USER_ID ?? "local-user")
 
   const bss = mk({
     name: "Bulgarian Split Squat",
-    tags: ["legs", "unilateral", "rehab"],
-    equipment: ["dumbbell", "bench"],
+    muscleGroup: "legs",
+    purpose: "Strength",
+    equipment: ["free weights"],
     progressBy: "weight",
     defaultWeight: 25,
     usualRepRange: { min: 8, max: 12 },
   });
   const rdl = mk({
     name: "Romanian Deadlift",
-    tags: ["legs", "posterior"],
-    equipment: ["barbell"],
+    muscleGroup: "legs",
+    purpose: "Strength",
+    equipment: ["free weights"],
     progressBy: "weight",
     defaultWeight: 95,
     usualRepRange: { min: 6, max: 10 },
   });
   const plank = mk({
     name: "Plank",
-    tags: ["core", "rehab"],
-    equipment: [],
+    muscleGroup: "core",
+    purpose: "PT", // PT → never nudged
+    equipment: ["none"],
     hasWeight: false,
     progressBy: "time",
     defaultWeight: null,
@@ -68,7 +75,8 @@ export async function seed(userId = process.env.DEFAULT_USER_ID ?? "local-user")
   });
   const band = mk({
     name: "Band Pull-Apart",
-    tags: ["shoulders", "rehab"],
+    muscleGroup: "arms",
+    purpose: "PT", // PT → never nudged
     equipment: ["band"],
     hasWeight: false,
     progressBy: "reps",
@@ -77,8 +85,9 @@ export async function seed(userId = process.env.DEFAULT_USER_ID ?? "local-user")
   });
   const goblet = mk({
     name: "Goblet Squat",
-    tags: ["legs"],
-    equipment: ["kettlebell"],
+    muscleGroup: "legs",
+    purpose: "Strength",
+    equipment: ["free weights"],
     progressBy: "weight",
     defaultWeight: 35,
     usualRepRange: { min: 8, max: 12 },
@@ -108,6 +117,7 @@ export async function seed(userId = process.env.DEFAULT_USER_ID ?? "local-user")
       readinessScore: s.readiness,
       startedAt: at,
       completedAt: at,
+      plannedExerciseIds: [bss._id, plank._id, band._id],
       summary: { setCount: 6, workoutsLast30Days: 0, prs: [] },
       createdAt: at,
       updatedAt: at,
@@ -126,7 +136,7 @@ export async function seed(userId = process.env.DEFAULT_USER_ID ?? "local-user")
         exerciseId: r.exercise._id,
         exerciseName: r.exercise.name,
         weight: r.weight ?? null,
-        unit: r.exercise.hasWeight ? "lb" : null,
+        unit: r.exercise.hasWeight ? "lbs" : null,
         reps: r.reps ?? null,
         durationSeconds: r.durationSeconds ?? null,
         rounds: r.rounds ?? 1,
@@ -144,12 +154,21 @@ export async function seed(userId = process.env.DEFAULT_USER_ID ?? "local-user")
   await exercises.insertMany(allExercises);
   await workouts.insertMany(workoutDocs);
   await logs.insertMany(logDocs);
+  await savedWorkouts.insertOne({
+    _id: new ObjectId(),
+    userId,
+    name: "Leg Day",
+    exerciseIds: [bss._id, rdl._id, goblet._id],
+    createdAt: new Date(now),
+    updatedAt: new Date(now),
+  });
 
   return {
     userId,
     exercises: allExercises.length,
     workouts: workoutDocs.length,
     logs: logDocs.length,
+    savedWorkouts: 1,
   };
 }
 

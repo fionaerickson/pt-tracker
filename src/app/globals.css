@@ -1,149 +1,281 @@
+/* Roboto loaded at runtime (no build-time font fetch). Falls back to system sans. */
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
+
 :root {
-  --bg: #0f1115;
-  --panel: #171a21;
-  --panel-2: #1f242d;
-  --border: #2a313c;
-  --text: #e6e8eb;
-  --muted: #9aa3ad;
-  --accent: #5b8cff;
-  --accent-2: #3ddc97;
-  --warn: #ffb454;
-  --danger: #ff6b6b;
+  --bg: #eef0f7;
+  --surface: #ffffff;
+  --ink: #1b1d39;
+  --navy: #2b2d77;
+  --navy-2: #21235c;
+  --blue: #4a5cf2;
+  --blue-soft: #e7eaff;
+  --periwinkle: #9aa7ff;
+  --muted: #6b7090;
+  --line: #e3e6f0;
+  --good: #1fb486;
+  --warn: #e8870b;
+  --danger: #e0506b;
+  --radius: 16px;
+  --tap: 54px;
 }
 
 * {
   box-sizing: border-box;
 }
 
+html,
 body {
-  font-family: system-ui, -apple-system, sans-serif;
   margin: 0;
   background: var(--bg);
-  color: var(--text);
+  color: var(--ink);
+  font-family: "Roboto", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 main {
-  max-width: 720px;
+  max-width: 480px;
   margin: 0 auto;
-  padding: 1.5rem 1rem 4rem;
+  padding: 1.25rem 1rem calc(var(--tap) + 2rem);
+  min-height: 100vh;
 }
 
 h1 {
-  font-size: 1.6rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0.25rem 0 1rem;
+}
+h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 1.25rem 0 0.5rem;
 }
 
 a {
-  color: var(--accent);
-}
-
-.card {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 1rem;
-  margin-bottom: 0.75rem;
-}
-
-.row {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.spread {
-  justify-content: space-between;
-}
-
-button {
-  font: inherit;
-  border: 1px solid var(--border);
-  background: var(--panel-2);
-  color: var(--text);
-  padding: 0.5rem 0.9rem;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-button.primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #0b1020;
-  font-weight: 600;
-}
-
-button.ghost {
-  background: transparent;
-}
-
-button.danger {
-  border-color: var(--danger);
-  color: var(--danger);
-}
-
-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-input,
-select {
-  font: inherit;
-  background: var(--panel-2);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 0.45rem 0.6rem;
-}
-
-label {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  font-size: 0.85rem;
-  color: var(--muted);
+  color: var(--blue);
+  text-decoration: none;
 }
 
 .muted {
   color: var(--muted);
 }
 
-.pill {
-  display: inline-block;
-  font-size: 0.75rem;
-  padding: 0.1rem 0.5rem;
-  border-radius: 999px;
-  background: var(--panel-2);
-  border: 1px solid var(--border);
-  color: var(--muted);
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 0.75rem;
 }
 
-.nudge {
-  border-left: 3px solid var(--warn);
-  background: rgba(255, 180, 84, 0.08);
-  padding: 0.6rem 0.8rem;
-  border-radius: 8px;
-  color: var(--warn);
-}
-
-.pr {
-  border-left: 3px solid var(--accent-2);
-  background: rgba(61, 220, 151, 0.08);
-  padding: 0.6rem 0.8rem;
-  border-radius: 8px;
-  margin-bottom: 0.5rem;
-}
-
-nav.tabs {
+.row {
   display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1.25rem;
+  gap: 0.6rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.spread {
+  justify-content: space-between;
+}
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+/* Buttons — large tap targets, limited text. */
+button {
+  font: inherit;
+  font-weight: 500;
+  min-height: var(--tap);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  padding: 0 1.1rem;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: transform 0.05s ease, background 0.15s ease;
+}
+button:active {
+  transform: scale(0.98);
+}
+button.primary {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #fff;
+}
+button.navy {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+}
+button.ghost {
+  background: transparent;
+}
+button.danger {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+button.block {
+  width: 100%;
+}
+button.sm {
+  min-height: 40px;
+  border-radius: 10px;
+  padding: 0 0.7rem;
+}
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Big hero action buttons on the landing hub. */
+.hero-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  min-height: 92px;
+  text-align: left;
+  padding: 1rem 1.1rem;
+  border-radius: var(--radius);
+}
+.hero-btn .big {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+.hero-btn .sub {
+  font-size: 0.85rem;
+  opacity: 0.85;
+  font-weight: 400;
+}
+
+input,
+select {
+  font: inherit;
+  width: 100%;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.7rem 0.8rem;
+  min-height: 48px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--muted);
 }
 
 .grid2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+}
+
+.pill {
+  display: inline-block;
+  font-size: 0.72rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  background: var(--blue-soft);
+  border: 1px solid transparent;
+  color: var(--navy);
+  margin: 0 0.25rem 0.2rem 0;
+}
+.pill.pt {
+  background: #eafaf3;
+  color: var(--good);
+}
+
+.chip {
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 0.45rem 0.8rem;
+  font-size: 0.85rem;
+}
+.chip.on {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #fff;
+}
+
+.nudge {
+  border-left: 4px solid var(--warn);
+  background: #fff7ec;
+  padding: 0.7rem 0.9rem;
+  border-radius: 12px;
+  color: #92560a;
+  font-size: 0.9rem;
+}
+
+.pr {
+  border-left: 4px solid var(--good);
+  background: #eafaf3;
+  padding: 0.7rem 0.9rem;
+  border-radius: 12px;
+  margin-bottom: 0.5rem;
+}
+
+/* Bottom tab bar */
+nav.tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: space-around;
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+  padding: 0.4rem 0.5rem env(safe-area-inset-bottom);
+  z-index: 10;
+}
+nav.tabbar a {
+  flex: 1;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 0.4rem 0;
+}
+nav.tabbar a .ico {
+  display: block;
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
+
+/* Sticky action bar at the bottom of a working page. */
+.actionbar {
+  position: sticky;
+  bottom: calc(var(--tap) + 0.5rem);
+  display: flex;
   gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+/* Modal / interstitial */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 22, 50, 0.55);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 50;
+}
+.sheet {
+  background: var(--surface);
+  width: 100%;
+  max-width: 480px;
+  border-radius: 20px 20px 0 0;
+  padding: 1.25rem 1rem 2rem;
 }
 
 @keyframes pop {
@@ -159,9 +291,17 @@ nav.tabs {
     opacity: 1;
   }
 }
-
 .celebrate {
   text-align: center;
-  font-size: 3rem;
+  font-size: 3.5rem;
   animation: pop 0.6s ease-out;
+}
+
+/* Simple SVG chart wrapper */
+.chart {
+  width: 100%;
+  height: 180px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
 }
